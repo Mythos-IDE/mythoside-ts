@@ -1,0 +1,92 @@
+/* Ultra-Modern Native Global Overrides */
+
+/* Soft, modern rounded corners everywhere */
+* {
+  border-radius: 12px !important;
+}
+
+/* Remove default harsh shadows and replace with soft ambient spreads */
+button,
+input,
+textarea,
+[class*="Card"],
+[class*="Layout"] {
+  box-shadow: none !important;
+}
+
+/* Light Mode Warm Nordic Editorial */
+:root,
+body {
+  /* Desk Backdrop */
+  --color-background-body: #f8f6f0 !important;
+
+  /* Panels (Sidebar, Inspector) */
+  --color-background-surface: #f0ede4 !important;
+  --color-background-raised: #f0ede4 !important;
+
+  /* Writing Paper Sheets */
+  --color-background-card: #ffffff !important;
+  --color-background-base: #ffffff !important;
+
+  --color-background-muted: #eae5db !important;
+
+  /* Borders & Dividers */
+  --color-border: #dfdbd3 !important;
+  --color-border-subtle: #ebe7df !important;
+  --color-border-bold: #c5beb2 !important;
+
+  /* Typography Colors (Charcoal Umber & Taupe) */
+  --color-text-primary: #2a2724 !important;
+  --color-text-secondary: #7c756b !important;
+
+  /* Accent: Terracotta Sienna */
+  --color-accent: #c67b5c !important;
+  --color-accent-muted: #f8efea !important;
+}
+
+/* Native Card styling (simulating high-end stationery sheets) */
+.native-card {
+  border: 1px solid var(--color-border) !important;
+  background-color: var(--color-background-card) !important;
+  box-shadow: 0 4px 20px rgba(42, 39, 36, 0.03) !important;
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease !important;
+}
+
+.native-card:hover {
+  border-color: var(--color-border-bold) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(42, 39, 36, 0.06) !important;
+}
+
+.native-card:active {
+  transform: translateY(0);
+}
+
+/* Native input field */
+.native-input {
+  border: 1px solid var(--color-border) !important;
+  background-color: var(--color-background-card) !important;
+  color: var(--color-text-primary) !important;
+  padding: 1.2rem;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.01) !important;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease !important;
+}
+
+.native-input:focus {
+  outline: none;
+  border-color: var(--color-accent) !important;
+  box-shadow: 0 0 0 3px var(--color-accent-muted) !important;
+}
+
+/* Reset text shadows */
+h1,
+h2,
+h3,
+h4 {
+  text-shadow: none !important;
+}

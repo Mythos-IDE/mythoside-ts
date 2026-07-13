@@ -1,0 +1,52 @@
+/* Ultra-Modern Native Typography System */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap");
+
+:root {
+  /* Fluid Typography using clamp() for responsive scaling */
+  /* Min width 320px, Max width 1200px */
+
+  --font-size-xs: clamp(0.75rem, 0.71rem + 0.18vw, 0.875rem);
+  --font-size-sm: clamp(0.875rem, 0.84rem + 0.18vw, 1rem);
+  --font-size-base: clamp(1rem, 0.96rem + 0.18vw, 1.125rem); /* Default readable size */
+  --font-size-lg: clamp(1.125rem, 1.09rem + 0.18vw, 1.25rem);
+  --font-size-xl: clamp(1.25rem, 1.18rem + 0.36vw, 1.5rem);
+  --font-size-2xl: clamp(1.5rem, 1.39rem + 0.54vw, 1.875rem);
+  --font-size-3xl: clamp(1.875rem, 1.71rem + 0.8vw, 2.438rem);
+
+  /* Fluid Spacing Scale */
+  --spacing-1: clamp(0.25rem, 0.23rem + 0.09vw, 0.313rem);
+  --spacing-2: clamp(0.5rem, 0.46rem + 0.18vw, 0.625rem);
+  --spacing-3: clamp(0.75rem, 0.7rem + 0.27vw, 0.938rem);
+  --spacing-4: clamp(1rem, 0.93rem + 0.36vw, 1.25rem);
+  --spacing-5: clamp(1.25rem, 1.16rem + 0.45vw, 1.563rem);
+  --spacing-6: clamp(1.5rem, 1.39rem + 0.54vw, 1.875rem);
+  --spacing-8: clamp(2rem, 1.86rem + 0.71vw, 2.5rem);
+  --spacing-10: clamp(2.5rem, 2.32rem + 0.89vw, 3.125rem);
+
+  /* Modern Zen Editor aesthetics */
+  --line-height-prose: 1.8;
+  --max-width-prose: 68ch;
+  --font-family-paper: "Newsreader", serif;
+  --font-family-ui: "Inter", system-ui, sans-serif;
+}
+
+/* Base resets specifically for writing area */
+body {
+  font-family: var(--font-family-ui);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-prose);
+  color: var(--color-text-primary);
+  background-color: var(--color-background-body);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-family-ui);
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  line-height: 1.2;
+}

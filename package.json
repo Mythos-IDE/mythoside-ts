@@ -17,8 +17,11 @@
     "@heroicons/react": "^2.2.0",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
+    "firebase": "^12.16.0",
+    "lucide-react": "^1.24.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@astryxdesign/cli": "^0.1.4",

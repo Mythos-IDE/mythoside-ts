@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "/Users/canberk-garage/Desktop/baris/node_modules/.bin/vp",
+      "runtimeArgs": ["dev"],
+      "port": 1420
+    }
+  ]
+}
