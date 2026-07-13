@@ -8,6 +8,7 @@
  * These icons are bundled with the theme, not with @astryxdesign/core.
  */
 
+import { createElement } from "react";
 import type { IconRegistry } from "@astryxdesign/core/Icon";
 
 import {
@@ -44,31 +45,35 @@ const iconProps = {
   "aria-hidden": true as const,
 };
 
+// Uses createElement() rather than JSX syntax: `astryx theme build` loads
+// this file in a plain Node/esbuild context that doesn't apply this
+// project's automatic JSX runtime, so bare `<X />` fails with "React is not
+// defined" there even though it works fine in the Vite app build.
 export const neutralIconRegistry: IconRegistry = {
-  close: <X {...iconProps} />,
-  chevronDown: <ChevronDown {...iconProps} />,
-  chevronLeft: <ChevronLeft {...iconProps} />,
-  chevronRight: <ChevronRight {...iconProps} />,
-  check: <Check {...iconProps} />,
-  success: <CheckCircle {...iconProps} />,
-  error: <XCircle {...iconProps} />,
-  warning: <AlertTriangle {...iconProps} />,
-  info: <Info {...iconProps} />,
-  calendar: <Calendar {...iconProps} />,
-  clock: <Clock {...iconProps} />,
-  externalLink: <ExternalLink {...iconProps} />,
-  menu: <Menu {...iconProps} />,
-  moreHorizontal: <MoreHorizontal {...iconProps} />,
-  search: <Search {...iconProps} />,
-  arrowUp: <ArrowUp {...iconProps} />,
-  arrowDown: <ArrowDown {...iconProps} />,
-  arrowsUpDown: <ArrowUpDown {...iconProps} />,
-  funnel: <Filter {...iconProps} />,
-  eyeSlash: <EyeOff {...iconProps} />,
-  viewColumns: <Columns {...iconProps} />,
-  copy: <Copy {...iconProps} />,
-  checkDouble: <CheckCheck {...iconProps} />,
-  wrench: <Wrench {...iconProps} />,
-  stop: <Square {...iconProps} />,
-  microphone: <Mic {...iconProps} />,
+  close: createElement(X, iconProps),
+  chevronDown: createElement(ChevronDown, iconProps),
+  chevronLeft: createElement(ChevronLeft, iconProps),
+  chevronRight: createElement(ChevronRight, iconProps),
+  check: createElement(Check, iconProps),
+  success: createElement(CheckCircle, iconProps),
+  error: createElement(XCircle, iconProps),
+  warning: createElement(AlertTriangle, iconProps),
+  info: createElement(Info, iconProps),
+  calendar: createElement(Calendar, iconProps),
+  clock: createElement(Clock, iconProps),
+  externalLink: createElement(ExternalLink, iconProps),
+  menu: createElement(Menu, iconProps),
+  moreHorizontal: createElement(MoreHorizontal, iconProps),
+  search: createElement(Search, iconProps),
+  arrowUp: createElement(ArrowUp, iconProps),
+  arrowDown: createElement(ArrowDown, iconProps),
+  arrowsUpDown: createElement(ArrowUpDown, iconProps),
+  funnel: createElement(Filter, iconProps),
+  eyeSlash: createElement(EyeOff, iconProps),
+  viewColumns: createElement(Columns, iconProps),
+  copy: createElement(Copy, iconProps),
+  checkDouble: createElement(CheckCheck, iconProps),
+  wrench: createElement(Wrench, iconProps),
+  stop: createElement(Square, iconProps),
+  microphone: createElement(Mic, iconProps),
 };

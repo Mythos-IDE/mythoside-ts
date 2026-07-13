@@ -121,15 +121,19 @@ export const neutralTheme = defineTheme({
     //
     // All values use the OKLCH Neutral tonal palette (chroma=0).
     // =========================================================================
-    "--color-background-surface": ["#ffffff", "#262626"],
-    "--color-background-body": ["#f1f1f1", "#1b1b1b"],
-    "--color-background-card": ["#ffffff", "#1b1b1b"],
-    "--color-background-popover": ["#ffffff", "#1b1b1b"],
-    "--color-background-muted": ["#f1f1f1", "#1b1b1b"],
+    // Warm Nordic Editorial (see DESIGN.md) — a bespoke light palette for
+    // this app, not the vendor neutral defaults above. Light-mode-only:
+    // main.tsx pins <Theme mode="light">, so these are plain values rather
+    // than [light, dark] tuples — there is no designed dark variant yet.
+    "--color-background-surface": "#f0ede4", // Stationery Sheets (panels)
+    "--color-background-body": "#f8f6f0", // Desk Backdrop
+    "--color-background-card": "#ffffff", // Writing Paper
+    "--color-background-popover": "#ffffff",
+    "--color-background-muted": "#eae5db",
 
     // Accent + neutral surface tints (sit alongside backgrounds)
-    "--color-accent": ["#262626", "#ebebeb"],
-    "--color-accent-muted": ["#f1f1f1", "#262626"],
+    "--color-accent": "#c67b5c", // Warm Terracotta / Sienna
+    "--color-accent-muted": "#f8efea",
     "--color-neutral": ["#0000000F", "#FFFFFF1A"],
 
     // Overlays (modal scrims, hover/pressed tints)
@@ -138,8 +142,8 @@ export const neutralTheme = defineTheme({
     "--color-overlay-pressed": ["#0000001A", "#FFFFFF1A"],
 
     // Text
-    "--color-text-primary": ["#171717", "#fafafa"],
-    "--color-text-secondary": ["#737373", "#a3a3a3"],
+    "--color-text-primary": "#2a2724", // Deep Charcoal Umber
+    "--color-text-secondary": "#7c756b", // Soft Earthy Taupe
     "--color-text-disabled": ["#a3a3a3", "#525252"],
     "--color-text-accent": ["#262626", "#ebebeb"],
     "--color-on-dark": "#ffffff",
@@ -191,8 +195,8 @@ export const neutralTheme = defineTheme({
     "--color-warning-muted": ["#f8da9d", "#deb4333D"],
 
     // Border
-    "--color-border": ["#ebebeb", "#FFFFFF1A"],
-    "--color-border-emphasized": ["#d4d4d4", "#525252"],
+    "--color-border": "#dfdbd3",
+    "--color-border-emphasized": "#c5beb2",
 
     // Effects
     "--color-skeleton": ["#ebebeb", "#525252"],
@@ -318,8 +322,8 @@ export const neutralTheme = defineTheme({
     // =========================================================================
     "--radius-none": "0.25rem",
     "--radius-inner": "0.375rem",
-    "--radius-element": "0.625rem",
-    "--radius-container": "0.75rem",
+    "--radius-element": "0.5rem", // 8px — DESIGN.md: buttons, inputs, list items
+    "--radius-container": "0.75rem", // 12px — DESIGN.md: cards (already matched)
     "--radius-page": "1.75rem",
     "--radius-full": "9999px",
 
