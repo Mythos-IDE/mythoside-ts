@@ -8,7 +8,19 @@ A Tauri v2 desktop app: a local-first fiction/world-building writing tool (in-ap
 
 **The entire UI layer was intentionally deleted to rebuild from scratch** (`src/views/`, `src/design-system/`, `src/models/`, `src/viewmodels/` are gone). `src/App.tsx` is a bare placeholder (`return null`) and `src/main.tsx` wires the vendor `@astryxdesign/theme-neutral` package directly (no local theme customization exists anymore — see "Architecture"). Do not assume any auth flow, data model, routing, or design-system customization exists; check the actual files before referencing prior behavior. The git history (before this reset) had a working Series → Book → Chapter manuscript model with Zustand-persisted stores and a full auth → dashboard → editor flow — useful as reference for "how was this solved before," not as current state.
 
-`DESIGN.md` still describes a "Warm Nordic Editorial" visual direction (warm desk/paper palette, terracotta accent, serif editor font) from before the reset. It is a design brief, not implemented code right now — decide with the user whether to follow it when rebuilding, rather than assuming it's already wired in.
+`DESIGN.md`'s "Warm Nordic Editorial" direction is considered obsolete, as is a separate dark/purple "Chronicle"-branded mockup found on the org's website repo — **no visual identity is currently decided.** Don't default to either without checking with the user first.
+
+**Target architecture (not yet implemented — this is where the rebuild is headed, per the `Mythos-IDE/mythoside-core` GitHub repo's README/roadmap and the project's own business plan):**
+
+- Data hierarchy: Series → Book → Chapter → **Scene** (the pre-reset code stopped at Chapter, no Scene level).
+- Source of truth: plain **Markdown files + YAML frontmatter on disk** — not Zustand/localStorage. This is the actual "local-first" guarantee (file ownership, no vendor lock-in), stronger than the old browser-storage approach.
+- **SQLite + FTS5** as a background index/cache only, rebuilt incrementally from file mtimes — never the source of truth.
+- A ProseMirror- or Monaco-based rich editor (not a plain `<textarea>`).
+- Signature feature: `@Character` inline autocomplete + hover profile cards, a cross-reference panel ("where does X appear"), and a relationship graph (node-link, characters/factions).
+- An export engine: DOCX → EPUB → print-ready PDF (with page-size templates), increasing in implementation complexity in that order.
+- Business model: freemium + one-time "Pro" license (not subscription — conflicts with local-first trust), optional paid cloud sync as a separate recurring layer.
+
+Roadmap priority per `mythoside-core`'s pinned issues: project structure → Markdown/YAML file format → SQLite/FTS5 indexing → `@mention` system → cross-reference view → graph/export/Pro tier.
 
 What's untouched by the reset: `src/services/cryptoService.ts` (SHA-256 password hashing via Web Crypto) and `src/services/firebase.ts` (a configured but **unused** Firebase app/Firestore/Auth client — not imported anywhere in `src/`; local-first still holds). The Rust side is still the unmodified Tauri template (one `greet` IPC command) — no established pattern yet for real IPC calls.
 
