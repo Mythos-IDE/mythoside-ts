@@ -43,4 +43,5 @@ export interface Note {
   bookId: string;
   title: string;
   content: string;
+  type: "lore" | "timeline";
 }

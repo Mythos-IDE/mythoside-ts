@@ -87,15 +87,8 @@ export default function OnboardingView({ onComplete }: OnboardingViewProps) {
       return;
     }
 
-    const newSeries = {
-      id: crypto.randomUUID(),
-      title: title.trim(),
-      description: description.trim(),
-      createdAt: Date.now(),
-    };
-
-    createSeries(newSeries);
-    setActiveSeries(newSeries.id);
+    const seriesId = createSeries({ title: title.trim(), description: description.trim() });
+    setActiveSeries(seriesId);
 
     onComplete();
     setStep("done");

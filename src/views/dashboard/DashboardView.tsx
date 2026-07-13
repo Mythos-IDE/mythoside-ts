@@ -29,13 +29,7 @@ export default function DashboardView() {
     const title = prompt("Enter book title:");
     if (!title || !activeSeriesId) return;
 
-    createBook({
-      id: crypto.randomUUID(),
-      seriesId: activeSeriesId,
-      title: title,
-      synopsis: "",
-      createdAt: Date.now(),
-    });
+    createBook({ seriesId: activeSeriesId, title });
   };
 
   const formatDate = (timestamp: number) => {

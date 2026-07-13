@@ -44,6 +44,11 @@ export default function EditorLayout() {
     ? locations.filter((l) => l.bookId === activeBookId)
     : [];
   const bookNotes = Array.isArray(notes) ? notes.filter((n) => n.bookId === activeBookId) : [];
+  // Lore and Timeline share the same underlying Note model but must not share
+  // the same list on screen — split by `type` so a "Timeline Event" never
+  // shows up under "Lore & Notes" and vice versa.
+  const timelineEvents = bookNotes.filter((n) => n.type === "timeline");
+  const loreNotes = bookNotes.filter((n) => n.type === "lore");
 
   if (!activeBook) return null;
 
@@ -51,16 +56,8 @@ export default function EditorLayout() {
     const title = prompt("Enter chapter title:");
     if (!title || !activeBookId) return;
 
-    const newChapter = {
-      id: crypto.randomUUID(),
-      bookId: activeBookId,
-      title,
-      content: "",
-      order: bookChapters.length + 1,
-      createdAt: Date.now(),
-    };
-    createChapter(newChapter);
-    setActiveChapter(newChapter.id);
+    const chapterId = createChapter({ bookId: activeBookId, title });
+    setActiveChapter(chapterId);
     setActiveTab("chapters");
   };
 
@@ -71,14 +68,7 @@ export default function EditorLayout() {
       prompt("Enter character role (e.g. Protagonist, Antagonist, Mentor):") || "Supporting";
     const bio = prompt("Enter character short description:") || "";
 
-    createCharacter({
-      id: crypto.randomUUID(),
-      bookId: activeBookId,
-      name,
-      role,
-      bio,
-      attributes: {},
-    });
+    createCharacter({ bookId: activeBookId, name, role, bio });
   };
 
   const handleCreateLocation = () => {
@@ -86,12 +76,7 @@ export default function EditorLayout() {
     if (!name || !activeBookId) return;
     const description = prompt("Enter location description:") || "";
 
-    createLocation({
-      id: crypto.randomUUID(),
-      bookId: activeBookId,
-      name,
-      description,
-    });
+    createLocation({ bookId: activeBookId, name, description });
   };
 
   const handleCreateNote = (type: "lore" | "timeline") => {
@@ -102,12 +87,7 @@ export default function EditorLayout() {
         type === "timeline" ? "Enter event date / timeline details:" : "Enter note details:",
       ) || "";
 
-    createNote({
-      id: crypto.randomUUID(),
-      bookId: activeBookId,
-      title,
-      content,
-    });
+    createNote({ bookId: activeBookId, title, content, type });
   };
 
   const getTabStyle = (tab: ActiveTab) => ({
@@ -127,7 +107,7 @@ export default function EditorLayout() {
           width={sidebarExpanded ? 280 : 0}
           style={{
             borderRight: "1px solid var(--color-border-subtle)",
-            backgroundColor: "var(--color-background-raised)",
+            backgroundColor: "var(--color-background-surface)",
             overflow: "hidden",
             transition: "width 0.2s ease",
           }}
@@ -230,7 +210,7 @@ export default function EditorLayout() {
               alignItems: "center",
               padding: "1rem 2rem",
               borderBottom: "1px solid var(--color-border-subtle)",
-              backgroundColor: "var(--color-background-raised)",
+              backgroundColor: "var(--color-background-surface)",
               fontFamily: "var(--font-family-ui)",
               zIndex: 10,
               width: "100%",
@@ -511,7 +491,7 @@ export default function EditorLayout() {
                     </div>
 
                     <VStack gap={4} width="100%">
-                      {bookNotes.length === 0 ? (
+                      {timelineEvents.length === 0 ? (
                         <div
                           style={{
                             textAlign: "center",
@@ -522,7 +502,7 @@ export default function EditorLayout() {
                           <Text type="body">No timeline events created yet.</Text>
                         </div>
                       ) : (
-                        bookNotes.map((note) => (
+                        timelineEvents.map((note) => (
                           <div
                             key={note.id}
                             style={{
@@ -590,7 +570,7 @@ export default function EditorLayout() {
                         width: "100%",
                       }}
                     >
-                      {bookNotes.length === 0 ? (
+                      {loreNotes.length === 0 ? (
                         <div
                           style={{
                             gridColumn: "span 2",
@@ -602,7 +582,7 @@ export default function EditorLayout() {
                           <Text type="body">No notes created yet.</Text>
                         </div>
                       ) : (
-                        bookNotes.map((note) => (
+                        loreNotes.map((note) => (
                           <div
                             key={note.id}
                             style={{
@@ -637,7 +617,7 @@ export default function EditorLayout() {
           width={300}
           style={{
             borderLeft: "1px solid var(--color-border-subtle)",
-            backgroundColor: "var(--color-background-raised)",
+            backgroundColor: "var(--color-background-surface)",
           }}
         >
           <Stack padding={4} gap={4}>
