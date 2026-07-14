@@ -17,6 +17,10 @@ export const commands = {
    */
   createCharacter: (input: CreateCharacterInput) =>
     typedError<Character, string>(__TAURI_INVOKE("create_character", { input })),
+  createSeries: (input: CreateSeriesInput) =>
+    typedError<Series, string>(__TAURI_INVOKE("create_series", { input })),
+  getSeries: (projectDir: string) =>
+    typedError<Series, string>(__TAURI_INVOKE("get_series", { projectDir })),
 };
 
 /* Types */
@@ -41,6 +45,25 @@ export type CreateCharacterInput = {
   role: string;
   bio?: string;
   attributes?: { [key in string]: string };
+};
+
+export type CreateSeriesInput = {
+  /**
+   *  Filesystem path to the project root — `series.yaml` is written
+   *  directly there (a project root *is* a series, per the folder
+   *  convention: `<project_dir>/series.yaml`, `<project_dir>/<book-slug>/
+   *  book.yaml`, etc.).
+   */
+  projectDir: string;
+  title: string;
+  description?: string;
+};
+
+export type Series = {
+  id: string;
+  title: string;
+  description: string;
+  createdAt: string;
 };
 
 /* Tauri Specta runtime */

@@ -1,6 +1,6 @@
 use crate::core_client::CoreClient;
-use mythoside_core::manuscript::commands::CreateCharacterInput;
-use mythoside_core::manuscript::models::Character;
+use mythoside_core::manuscript::commands::{CreateCharacterInput, CreateSeriesInput};
+use mythoside_core::manuscript::models::{Character, Series};
 use serde_json::json;
 use tauri::State;
 
@@ -19,6 +19,29 @@ pub async fn create_character(
 ) -> Result<Character, String> {
     let params = serde_json::to_value(input).map_err(|e| e.to_string())?;
     let result = core.call("create_character", params).await?;
+    serde_json::from_value(result).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn create_series(
+    core: State<'_, CoreClient>,
+    input: CreateSeriesInput,
+) -> Result<Series, String> {
+    let params = serde_json::to_value(input).map_err(|e| e.to_string())?;
+    let result = core.call("create_series", params).await?;
+    serde_json::from_value(result).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn get_series(
+    core: State<'_, CoreClient>,
+    project_dir: String,
+) -> Result<Series, String> {
+    let result = core
+        .call("get_series", json!({ "projectDir": project_dir }))
+        .await?;
     serde_json::from_value(result).map_err(|e| e.to_string())
 }
 
