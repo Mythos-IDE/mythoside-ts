@@ -1,3 +1,5 @@
+mod watcher;
+
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -8,7 +10,12 @@ fn greet(name: &str) -> String {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .manage(watcher::WatcherState::default())
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            watcher::start_watching,
+            watcher::stop_watching
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
