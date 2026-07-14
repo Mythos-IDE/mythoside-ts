@@ -1,108 +1,40 @@
 import { useState } from "react";
-import { VStack, HStack } from "@astryxdesign/core/Layout";
-import { Card } from "@astryxdesign/core/Card";
-import { Text, Heading } from "@astryxdesign/core/Text";
-import { Button } from "@astryxdesign/core/Button";
-import { TextInput } from "@astryxdesign/core/TextInput";
-import { TextArea } from "@astryxdesign/core/TextArea";
-import { Banner } from "@astryxdesign/core/Banner";
-import { commands, type Series } from "./bindings";
+import type { View } from "./state/navigation";
+import { CreateSeriesView } from "./views/CreateSeriesView";
+import { SeriesDashboardView } from "./views/SeriesDashboardView";
+import { SeriesInfoView } from "./views/SeriesInfoView";
+import { AddBookView } from "./views/AddBookView";
+import { BookDetailView } from "./views/BookDetailView";
+import { AddCharacterView } from "./views/AddCharacterView";
+import { AddLocationView } from "./views/AddLocationView";
+import { AddTimelineNoteView } from "./views/AddTimelineNoteView";
 
-// createdAt is stored as a full-precision ISO-8601 string on disk (see
-// CLAUDE.md — machine-readable, sortable) but that's not something a user
-// should ever have to read; format it for display only.
-function formatCreatedAt(isoString: string): string {
-  return new Date(isoString).toLocaleString("tr-TR", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
-
-// Test harness for the create_series/get_series backend commands — not the
-// app's real UI (no visual identity is decided yet, see CLAUDE.md). Just
-// enough to prove the Tauri -> mythoside-core round trip works end to end.
+// No router library: a single-window desktop app with a handful of screens
+// has no URL-addressable content to justify one (see state/navigation.ts).
+// This is the single point in the tree that reads `view` and renders the
+// matching screen; every screen gets series/book context from seriesStore,
+// not through props threaded down from here.
 function App() {
-  const [projectDir, setProjectDir] = useState("");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [series, setSeries] = useState<Series | null>(null);
-  const [error, setError] = useState("");
+  const [view, setView] = useState<View>("create-series");
 
-  const handleCreate = async () => {
-    setError("");
-    const result = await commands.createSeries({ projectDir, title, description });
-    if (result.status === "ok") {
-      setSeries(result.data);
-    } else {
-      setError(result.error);
-    }
-  };
-
-  const handleLoad = async () => {
-    setError("");
-    const result = await commands.getSeries(projectDir);
-    if (result.status === "ok") {
-      setSeries(result.data);
-    } else {
-      setError(result.error);
-    }
-  };
-
-  return (
-    <VStack gap={6} padding={8} style={{ maxWidth: 480, margin: "0 auto" }}>
-      <Heading level={1}>Seri Test Arayüzü</Heading>
-
-      <Card padding={6}>
-        <VStack gap={4}>
-          <TextInput
-            label="Proje Klasörü"
-            value={projectDir}
-            onChange={setProjectDir}
-            placeholder="/Users/.../my-series"
-          />
-          <TextInput label="Başlık" value={title} onChange={setTitle} />
-          <TextArea
-            label="Açıklama"
-            value={description}
-            onChange={setDescription}
-            isOptional
-            rows={3}
-          />
-          <HStack gap={2}>
-            <Button
-              label="Seri Oluştur"
-              variant="primary"
-              clickAction={handleCreate}
-              isDisabled={!projectDir || !title}
-            />
-            <Button
-              label="Seriyi Yükle"
-              variant="secondary"
-              clickAction={handleLoad}
-              isDisabled={!projectDir}
-            />
-          </HStack>
-        </VStack>
-      </Card>
-
-      {error && <Banner status="error" title="Hata" description={error} />}
-
-      {series && (
-        <Card padding={6}>
-          <VStack gap={2}>
-            <Heading level={3}>{series.title}</Heading>
-            <Text color="secondary">{series.description || "Açıklama yok."}</Text>
-            <Text type="supporting" color="secondary">
-              ID: {series.id}
-            </Text>
-            <Text type="supporting" color="secondary">
-              Oluşturulma: {formatCreatedAt(series.createdAt)}
-            </Text>
-          </VStack>
-        </Card>
-      )}
-    </VStack>
-  );
+  switch (view) {
+    case "create-series":
+      return <CreateSeriesView onNavigate={setView} />;
+    case "series-dashboard":
+      return <SeriesDashboardView onNavigate={setView} />;
+    case "series-info":
+      return <SeriesInfoView onNavigate={setView} />;
+    case "add-book":
+      return <AddBookView onNavigate={setView} />;
+    case "book-detail":
+      return <BookDetailView onNavigate={setView} />;
+    case "add-character":
+      return <AddCharacterView onNavigate={setView} />;
+    case "add-location":
+      return <AddLocationView onNavigate={setView} />;
+    case "add-timeline-note":
+      return <AddTimelineNoteView onNavigate={setView} />;
+  }
 }
 
 export default App;

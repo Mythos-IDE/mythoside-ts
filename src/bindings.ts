@@ -17,13 +17,49 @@ export const commands = {
    */
   createCharacter: (input: CreateCharacterInput) =>
     typedError<Character, string>(__TAURI_INVOKE("create_character", { input })),
+  listCharacters: (bookDir: string) =>
+    typedError<ListCharactersOutput, string>(__TAURI_INVOKE("list_characters", { bookDir })),
   createSeries: (input: CreateSeriesInput) =>
-    typedError<Series, string>(__TAURI_INVOKE("create_series", { input })),
+    typedError<CreateSeriesOutput, string>(__TAURI_INVOKE("create_series", { input })),
   getSeries: (projectDir: string) =>
     typedError<Series, string>(__TAURI_INVOKE("get_series", { projectDir })),
+  updateSeries: (input: UpdateSeriesInput) =>
+    typedError<Series, string>(__TAURI_INVOKE("update_series", { input })),
+  createBook: (input: CreateBookInput) =>
+    typedError<BookHandle, string>(__TAURI_INVOKE("create_book", { input })),
+  listBooks: (projectDir: string) =>
+    typedError<ListBooksOutput, string>(__TAURI_INVOKE("list_books", { projectDir })),
+  createLocation: (input: CreateLocationInput) =>
+    typedError<Location, string>(__TAURI_INVOKE("create_location", { input })),
+  listLocations: (bookDir: string) =>
+    typedError<ListLocationsOutput, string>(__TAURI_INVOKE("list_locations", { bookDir })),
+  createNote: (input: CreateNoteInput) =>
+    typedError<Note, string>(__TAURI_INVOKE("create_note", { input })),
+  listNotes: (bookDir: string) =>
+    typedError<ListNotesOutput, string>(__TAURI_INVOKE("list_notes", { bookDir })),
 };
 
 /* Types */
+export type Book = {
+  id: string;
+  seriesId: string;
+  title: string;
+  synopsis: string;
+  order: number;
+  createdAt: string;
+};
+
+export type BookHandle = {
+  book: Book;
+  /**
+   *  Where `book.yaml` actually landed — mirrors `CreateSeriesOutput`'s
+   *  `project_dir` pairing. Character/Location/Note all key off a book,
+   *  not a series (see their `book_id`/`book_dir` fields), so callers need
+   *  this to create any of those under the returned book.
+   */
+  bookDir: string;
+};
+
 export type Character = {
   id: string;
   bookId: string;
@@ -32,6 +68,13 @@ export type Character = {
   attributes: { [key in string]: string };
   createdAt: string;
   bio: string;
+};
+
+export type CreateBookInput = {
+  projectDir: string;
+  seriesId: string;
+  title: string;
+  synopsis?: string;
 };
 
 export type CreateCharacterInput = {
@@ -47,23 +90,92 @@ export type CreateCharacterInput = {
   attributes?: { [key in string]: string };
 };
 
+export type CreateLocationInput = {
+  bookDir: string;
+  bookId: string;
+  name: string;
+  description?: string;
+};
+
+export type CreateNoteInput = {
+  bookDir: string;
+  bookId: string;
+  title: string;
+  type: NoteType;
+  content?: string;
+};
+
 export type CreateSeriesInput = {
-  /**
-   *  Filesystem path to the project root — `series.yaml` is written
-   *  directly there (a project root *is* a series, per the folder
-   *  convention: `<project_dir>/series.yaml`, `<project_dir>/<book-slug>/
-   *  book.yaml`, etc.).
-   */
-  projectDir: string;
   title: string;
   description?: string;
 };
+
+export type CreateSeriesOutput = {
+  series: Series;
+  /**
+   *  Where `series.yaml` actually landed — the caller (a UI, eventually a
+   *  "recent projects" list) needs this to read the series back later via
+   *  `get_series`. Nothing asked the user to type or pick this; see
+   *  `create_series`.
+   */
+  projectDir: string;
+};
+
+export type ListBooksOutput = {
+  books: BookHandle[];
+  /**
+   *  `"<path>: <parse error>"` per book.yaml that failed to parse — one
+   *  corrupt/hand-edited book shouldn't hide every other book from the
+   *  dashboard, but it also shouldn't silently vanish with no trace.
+   */
+  warnings: string[];
+};
+
+export type ListCharactersOutput = {
+  characters: Character[];
+  warnings: string[];
+};
+
+export type ListLocationsOutput = {
+  locations: Location[];
+  warnings: string[];
+};
+
+export type ListNotesOutput = {
+  notes: Note[];
+  warnings: string[];
+};
+
+export type Location = {
+  id: string;
+  bookId: string;
+  name: string;
+  createdAt: string;
+  description: string;
+};
+
+export type Note = {
+  id: string;
+  bookId: string;
+  title: string;
+  type: NoteType;
+  createdAt: string;
+  content: string;
+};
+
+export type NoteType = "lore" | "timeline";
 
 export type Series = {
   id: string;
   title: string;
   description: string;
   createdAt: string;
+};
+
+export type UpdateSeriesInput = {
+  projectDir: string;
+  title: string;
+  description?: string;
 };
 
 /* Tauri Specta runtime */

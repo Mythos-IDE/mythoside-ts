@@ -1,6 +1,10 @@
 use crate::core_client::CoreClient;
-use mythoside_core::manuscript::commands::{CreateCharacterInput, CreateSeriesInput};
-use mythoside_core::manuscript::models::{Character, Series};
+use mythoside_core::manuscript::commands::{
+    BookHandle, CreateBookInput, CreateCharacterInput, CreateLocationInput, CreateNoteInput,
+    CreateSeriesInput, CreateSeriesOutput, ListBooksOutput, ListCharactersOutput,
+    ListLocationsOutput, ListNotesOutput, UpdateSeriesInput,
+};
+use mythoside_core::manuscript::models::{Character, Location, Note, Series};
 use serde_json::json;
 use tauri::State;
 
@@ -27,7 +31,7 @@ pub async fn create_character(
 pub async fn create_series(
     core: State<'_, CoreClient>,
     input: CreateSeriesInput,
-) -> Result<Series, String> {
+) -> Result<CreateSeriesOutput, String> {
     let params = serde_json::to_value(input).map_err(|e| e.to_string())?;
     let result = core.call("create_series", params).await?;
     serde_json::from_value(result).map_err(|e| e.to_string())
@@ -41,6 +45,98 @@ pub async fn get_series(
 ) -> Result<Series, String> {
     let result = core
         .call("get_series", json!({ "projectDir": project_dir }))
+        .await?;
+    serde_json::from_value(result).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn update_series(
+    core: State<'_, CoreClient>,
+    input: UpdateSeriesInput,
+) -> Result<Series, String> {
+    let params = serde_json::to_value(input).map_err(|e| e.to_string())?;
+    let result = core.call("update_series", params).await?;
+    serde_json::from_value(result).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn create_book(
+    core: State<'_, CoreClient>,
+    input: CreateBookInput,
+) -> Result<BookHandle, String> {
+    let params = serde_json::to_value(input).map_err(|e| e.to_string())?;
+    let result = core.call("create_book", params).await?;
+    serde_json::from_value(result).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn list_books(
+    core: State<'_, CoreClient>,
+    project_dir: String,
+) -> Result<ListBooksOutput, String> {
+    let result = core
+        .call("list_books", json!({ "projectDir": project_dir }))
+        .await?;
+    serde_json::from_value(result).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn create_location(
+    core: State<'_, CoreClient>,
+    input: CreateLocationInput,
+) -> Result<Location, String> {
+    let params = serde_json::to_value(input).map_err(|e| e.to_string())?;
+    let result = core.call("create_location", params).await?;
+    serde_json::from_value(result).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn list_locations(
+    core: State<'_, CoreClient>,
+    book_dir: String,
+) -> Result<ListLocationsOutput, String> {
+    let result = core
+        .call("list_locations", json!({ "bookDir": book_dir }))
+        .await?;
+    serde_json::from_value(result).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn list_characters(
+    core: State<'_, CoreClient>,
+    book_dir: String,
+) -> Result<ListCharactersOutput, String> {
+    let result = core
+        .call("list_characters", json!({ "bookDir": book_dir }))
+        .await?;
+    serde_json::from_value(result).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn create_note(
+    core: State<'_, CoreClient>,
+    input: CreateNoteInput,
+) -> Result<Note, String> {
+    let params = serde_json::to_value(input).map_err(|e| e.to_string())?;
+    let result = core.call("create_note", params).await?;
+    serde_json::from_value(result).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn list_notes(
+    core: State<'_, CoreClient>,
+    book_dir: String,
+) -> Result<ListNotesOutput, String> {
+    let result = core
+        .call("list_notes", json!({ "bookDir": book_dir }))
         .await?;
     serde_json::from_value(result).map_err(|e| e.to_string())
 }
