@@ -8,6 +8,16 @@ import { TextArea } from "@astryxdesign/core/TextArea";
 import { Banner } from "@astryxdesign/core/Banner";
 import { commands, type Series } from "./bindings";
 
+// createdAt is stored as a full-precision ISO-8601 string on disk (see
+// CLAUDE.md — machine-readable, sortable) but that's not something a user
+// should ever have to read; format it for display only.
+function formatCreatedAt(isoString: string): string {
+  return new Date(isoString).toLocaleString("tr-TR", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+}
+
 // Test harness for the create_series/get_series backend commands — not the
 // app's real UI (no visual identity is decided yet, see CLAUDE.md). Just
 // enough to prove the Tauri -> mythoside-core round trip works end to end.
@@ -86,7 +96,7 @@ function App() {
               ID: {series.id}
             </Text>
             <Text type="supporting" color="secondary">
-              Oluşturulma: {series.createdAt}
+              Oluşturulma: {formatCreatedAt(series.createdAt)}
             </Text>
           </VStack>
         </Card>
