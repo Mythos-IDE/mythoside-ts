@@ -1,28 +1,15 @@
 import { initializeApp } from "firebase/app";
-import {
-  initializeFirestore,
-  persistentLocalCache,
-  persistentMultipleTabManager,
-} from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCCAS8t5wyOQeUkP9VL8641VbShvQsuYm8",
-  authDomain: "plus-4daaa.firebaseapp.com",
-  projectId: "plus-4daaa",
-  appId: "1:205927407583:web:41f103a218f60007076e6a",
+  apiKey: "AIzaSyCyBpGSuOsD-jjgtscUxBQ52EWsm8JYOpk",
+  authDomain: "mythoside.firebaseapp.com",
+  projectId: "mythoside",
+  storageBucket: "mythoside.firebasestorage.app",
+  messagingSenderId: "499952548204",
+  appId: "1:499952548204:web:cfbd535a9491e27aff9b49",
+  measurementId: "G-SLCV5EZMNJ",
 };
 
 export const app = initializeApp(firebaseConfig);
-
-export const db = initializeFirestore(
-  app,
-  {
-    localCache: persistentLocalCache({
-      tabManager: persistentMultipleTabManager(),
-    }),
-  },
-  "sortify-db",
-);
-
-export const auth = getAuth(app);
+export const analytics = getAnalytics(app);

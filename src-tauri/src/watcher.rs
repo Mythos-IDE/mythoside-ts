@@ -51,6 +51,7 @@ where
 pub struct WatcherState(Mutex<Option<RecommendedWatcher>>);
 
 #[tauri::command]
+#[specta::specta]
 pub fn start_watching(
     app: AppHandle,
     state: State<WatcherState>,
@@ -83,6 +84,7 @@ pub fn start_watching(
 }
 
 #[tauri::command]
+#[specta::specta]
 pub fn stop_watching(state: State<WatcherState>) -> Result<(), String> {
     let mut guard = state
         .0
