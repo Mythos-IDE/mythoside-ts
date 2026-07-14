@@ -5,16 +5,8 @@ use core_client::CoreClient;
 use tauri::Manager;
 use tauri_specta::{collect_commands, Builder};
 
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-#[specta::specta]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
-
 fn specta_builder() -> Builder<tauri::Wry> {
     Builder::<tauri::Wry>::new().commands(collect_commands![
-        greet,
         commands::start_watching,
         commands::stop_watching,
         commands::create_character,

@@ -4,7 +4,6 @@ import { invoke as __TAURI_INVOKE } from "@tauri-apps/api/core";
 
 /** Commands */
 export const commands = {
-  greet: (name: string) => __TAURI_INVOKE<string>("greet", { name }),
   startWatching: (path: string) =>
     typedError<null, string>(__TAURI_INVOKE("start_watching", { path })),
   stopWatching: () => typedError<null, string>(__TAURI_INVOKE("stop_watching")),
