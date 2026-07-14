@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Cargo workspace build output (root Cargo.toml, members src-tauri + mythoside-core)
+/target
+
 # Editor directories and files
 .vscode
 .vite-hooks

@@ -8,6 +8,14 @@ export const commands = {
   startWatching: (path: string) =>
     typedError<null, string>(__TAURI_INVOKE("start_watching", { path })),
   stopWatching: () => typedError<null, string>(__TAURI_INVOKE("stop_watching")),
+  /**
+   *  These commands do no work themselves — they serialize their arguments,
+   *  send them to the local `mythoside-core` process over stdio, and
+   *  deserialize its response back into the same Rust types `mythoside-core`
+   *  defines (reused directly, not redeclared — see CLAUDE.md). All of them
+   *  keep the exact signature the frontend already calls through
+   *  `src/bindings.ts`; only what happens *inside* changed.
+   */
   createCharacter: (input: CreateCharacterInput) =>
     typedError<Character, string>(__TAURI_INVOKE("create_character", { input })),
 };

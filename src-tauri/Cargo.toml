@@ -22,14 +22,12 @@ tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-notify = "8.2.0"
-serde_norway = "0.9.42"
-specta = "2.0.0-rc.25"
-uuid = { version = "1.23.5", features = ["serde", "v4"] }
+specta = { version = "2.0.0-rc.25", features = ["derive"] }
 tauri-specta = { version = "2.0.0-rc.25", features = ["derive", "typescript"] }
 specta-typescript = "0.0.12"
-chrono = { version = "0.4.45", features = ["serde"] }
+tokio = { version = "1", features = ["process", "sync", "io-util", "rt"] }
+mythoside-core = { path = "../mythoside-core" }
 
 [dev-dependencies]
 tempfile = "3.27.0"
-
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

@@ -1,7 +1,7 @@
 use super::format;
 use super::models::Character;
 use chrono::Utc;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::collections::HashMap;
 use std::fs;
@@ -34,7 +34,7 @@ fn slugify(input: &str) -> String {
     slug.trim_matches('-').to_string()
 }
 
-#[derive(Deserialize, Type)]
+#[derive(Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateCharacterInput {
     /// Filesystem path to the book's folder — the character file is written
@@ -49,8 +49,6 @@ pub struct CreateCharacterInput {
     pub attributes: HashMap<String, String>,
 }
 
-#[tauri::command]
-#[specta::specta]
 pub fn create_character(input: CreateCharacterInput) -> Result<Character, String> {
     let id = Uuid::new_v4().to_string();
     let character = Character {

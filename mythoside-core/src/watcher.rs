@@ -1,12 +1,10 @@
 use notify::{Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use serde::Serialize;
+use specta::Type;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
-use tauri::{AppHandle, Emitter, State};
 
-const FILE_CHANGED_EVENT: &str = "manuscript://file-changed";
-
-#[derive(Clone, Serialize, Debug)]
+#[derive(Clone, Serialize, Debug, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct FileChangeEvent {
     pub kind: String, // "create" | "modify" | "remove" | "other" | "error"
@@ -32,9 +30,9 @@ impl From<Event> for FileChangeEvent {
 }
 
 /// Starts a recursive native watch on `root`, invoking `on_event` for every
-/// filesystem event `notify` reports. No Tauri dependency here on purpose —
-/// this is the part unit-tested below; the `#[tauri::command]` below just
-/// plugs in `app.emit` as the callback.
+/// filesystem event `notify` reports. This is the part unit-tested below;
+/// `start_watching` just plugs in a `FileChangeEvent` callback (the RPC
+/// server wires that to a stdout notification — see `main.rs`).
 fn watch<F>(root: &Path, on_event: F) -> notify::Result<RecommendedWatcher>
 where
     F: Fn(notify::Result<Event>) + Send + 'static,
@@ -50,19 +48,16 @@ where
 #[derive(Default)]
 pub struct WatcherState(Mutex<Option<RecommendedWatcher>>);
 
-#[tauri::command]
-#[specta::specta]
 pub fn start_watching(
-    app: AppHandle,
-    state: State<WatcherState>,
-    path: String,
+    state: &WatcherState,
+    path: &str,
+    on_event: impl Fn(FileChangeEvent) + Send + 'static,
 ) -> Result<(), String> {
-    let root = PathBuf::from(&path);
+    let root = PathBuf::from(path);
     if !root.exists() {
         return Err(format!("path does not exist: {path}"));
     }
 
-    let app_handle = app.clone();
     let watcher = watch(&root, move |res| {
         let payload = match res {
             Ok(event) => FileChangeEvent::from(event),
@@ -71,7 +66,7 @@ pub fn start_watching(
                 paths: vec![e.to_string()],
             },
         };
-        let _ = app_handle.emit(FILE_CHANGED_EVENT, payload);
+        on_event(payload);
     })
     .map_err(|e| e.to_string())?;
 
@@ -83,9 +78,7 @@ pub fn start_watching(
     Ok(())
 }
 
-#[tauri::command]
-#[specta::specta]
-pub fn stop_watching(state: State<WatcherState>) -> Result<(), String> {
+pub fn stop_watching(state: &WatcherState) -> Result<(), String> {
     let mut guard = state
         .0
         .lock()

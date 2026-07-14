@@ -1,6 +1,8 @@
-mod manuscript;
-mod watcher;
+mod commands;
+mod core_client;
 
+use core_client::CoreClient;
+use tauri::Manager;
 use tauri_specta::{collect_commands, Builder};
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -13,9 +15,9 @@ fn greet(name: &str) -> String {
 fn specta_builder() -> Builder<tauri::Wry> {
     Builder::<tauri::Wry>::new().commands(collect_commands![
         greet,
-        watcher::start_watching,
-        watcher::stop_watching,
-        manuscript::commands::create_character,
+        commands::start_watching,
+        commands::stop_watching,
+        commands::create_character,
     ])
 }
 
@@ -37,10 +39,11 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .manage(watcher::WatcherState::default())
         .invoke_handler(builder.invoke_handler())
         .setup(move |app| {
             builder.mount_events(app);
+            let core_client = CoreClient::spawn(&app.handle().clone())?;
+            app.manage(core_client);
             Ok(())
         })
         .run(tauri::generate_context!())
