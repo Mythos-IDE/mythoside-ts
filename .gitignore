@@ -12,8 +12,16 @@ dist
 dist-ssr
 *.local
 
-# Cargo workspace build output (root Cargo.toml, members src-tauri + mythoside-core)
+# Cargo workspace build output (root Cargo.toml, member src-tauri)
 /target
+
+# Sidecar binary, copied in by scripts/prepare-sidecar.mjs before every
+# `tauri dev`/`tauri build` — platform-specific, never committed.
+/src-tauri/binaries
+
+# scripts/prepare-sidecar.mjs's own throwaway build checkout of
+# github.com/Mythos-IDE/mythoside-core — not this repo's source.
+/.mythoside-core-src
 
 # Editor directories and files
 .vscode

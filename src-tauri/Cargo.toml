@@ -26,7 +26,8 @@ specta = { version = "2.0.0-rc.25", features = ["derive"] }
 tauri-specta = { version = "2.0.0-rc.25", features = ["derive", "typescript"] }
 specta-typescript = "0.0.12"
 tokio = { version = "1", features = ["process", "sync", "io-util", "rt"] }
-mythoside-core = { path = "../mythoside-core" }
+mythoside-core = { git = "https://github.com/Mythos-IDE/mythoside-core", branch = "main" }
+tauri-plugin-shell = "2.3.5"
 
 [dev-dependencies]
 tempfile = "3.27.0"

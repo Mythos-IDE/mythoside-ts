@@ -1,109 +1,77 @@
 use mythoside_core::rpc::{Notification, Request, Response};
 use std::collections::HashMap;
-use std::path::PathBuf;
-use std::process::Stdio;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex as StdMutex};
 use tauri::{AppHandle, Emitter};
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
-use tokio::process::{Child, ChildStdin, Command};
-use tokio::sync::{oneshot, Mutex as AsyncMutex};
+use tauri_plugin_shell::process::{CommandChild, CommandEvent};
+use tauri_plugin_shell::ShellExt;
+use tokio::sync::oneshot;
 
 const FILE_CHANGED_EVENT: &str = "manuscript://file-changed";
 
-/// Locates the sibling `mythoside-core` binary. Both crates are members of
-/// the same Cargo workspace, so `cargo build`/`cargo run` put them in the
-/// same `target/{debug,release}/` directory as this app's own executable —
-/// hence looking next to `current_exe()` rather than hardcoding a path.
-///
-/// Not yet handled: production app bundles. A packaged Tauri app needs
-/// `mythoside-core` bundled as a proper Tauri "sidecar" binary (see
-/// `tauri.conf.json`'s `bundle.externalBin`) with the target-triple-suffixed
-/// naming Tauri's bundler expects — that's a follow-up, not solved here.
-fn resolve_core_binary_path() -> Result<PathBuf, String> {
-    let current_exe = std::env::current_exe().map_err(|e| e.to_string())?;
-    let dir = current_exe
-        .parent()
-        .ok_or_else(|| "could not determine executable directory".to_string())?;
-    let binary_name = if cfg!(windows) {
-        "mythoside-core.exe"
-    } else {
-        "mythoside-core"
-    };
-
-    let candidate = dir.join(binary_name);
-    if candidate.exists() {
-        return Ok(candidate);
-    }
-
-    // `cargo test` harness binaries live in `target/debug/deps/`, one level
-    // below where `cargo build`/`cargo run` puts named binaries like
-    // `mythoside-core` — check the parent directory too so tests can find it.
-    if dir.file_name().is_some_and(|name| name == "deps") {
-        if let Some(profile_dir) = dir.parent() {
-            let candidate = profile_dir.join(binary_name);
-            if candidate.exists() {
-                return Ok(candidate);
-            }
-        }
-    }
-
-    Err(format!(
-        "mythoside-core binary not found next to {current_exe:?} — build it with `cargo build -p mythoside-core`"
-    ))
-}
+/// Must match the `shell:allow-execute` sidecar scope name in
+/// `capabilities/default.json`. Note this is deliberately *not* the same
+/// string as `tauri.conf.json`'s `bundle.externalBin` entry
+/// (`binaries/mythoside-core`) — that path is where the build looks for the
+/// *source* file to bundle (`src-tauri/binaries/mythoside-core-<target-triple>`,
+/// produced by `scripts/prepare-sidecar.mjs`); at runtime, `tauri-plugin-shell`
+/// resolves a sidecar relative to the running executable's own directory
+/// with the triple stripped and no `binaries/` prefix — `target/debug/
+/// mythoside-core` in dev (which a plain workspace `cargo build` already
+/// produces, no copying needed there) and, per Tauri's bundling convention,
+/// alongside the packaged app's own executable in a built app.
+const SIDECAR_NAME: &str = "mythoside-core";
 
 struct Inner {
-    stdin: AsyncMutex<ChildStdin>,
+    child: StdMutex<CommandChild>,
     pending: StdMutex<HashMap<u64, oneshot::Sender<Response>>>,
     next_id: AtomicU64,
-    // Keeping the Child here ties its lifetime to CoreClient (and therefore
-    // to Tauri's managed state, i.e. the app's lifetime) — dropping it would
-    // close stdin, which ends the core process's read loop.
-    _child: Child,
 }
 
-/// A thin client for the local `mythoside-core` server process: spawns it,
-/// speaks the stdin/stdout JSON-RPC protocol defined in
-/// `mythoside_core::rpc`, and forwards its `"file-changed"` notifications
-/// as Tauri events. All actual manuscript logic (parsing, file I/O,
-/// watching) lives in that separate process — see CLAUDE.md.
+/// A thin client for the local `mythoside-core` server process: spawns it as
+/// a Tauri sidecar, speaks the stdin/stdout JSON-RPC protocol defined in
+/// `mythoside_core::rpc`, and forwards its `"file-changed"` notifications as
+/// Tauri events. All actual manuscript logic (parsing, file I/O, watching)
+/// lives in that separate process — see CLAUDE.md.
 #[derive(Clone)]
 pub struct CoreClient(Arc<Inner>);
 
 impl CoreClient {
     pub fn spawn(app: &AppHandle) -> Result<Self, String> {
-        let binary_path = resolve_core_binary_path()?;
-
-        let mut child = Command::new(binary_path)
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::inherit())
+        let (mut events, child) = app
+            .shell()
+            .sidecar(SIDECAR_NAME)
+            .map_err(|e| e.to_string())?
             .spawn()
             .map_err(|e| e.to_string())?;
 
-        let stdin = child
-            .stdin
-            .take()
-            .ok_or_else(|| "failed to capture mythoside-core stdin".to_string())?;
-        let stdout = child
-            .stdout
-            .take()
-            .ok_or_else(|| "failed to capture mythoside-core stdout".to_string())?;
-
         let client = CoreClient(Arc::new(Inner {
-            stdin: AsyncMutex::new(stdin),
+            child: StdMutex::new(child),
             pending: StdMutex::new(HashMap::new()),
             next_id: AtomicU64::new(1),
-            _child: child,
         }));
 
         let reader_client = client.clone();
         let app_handle = app.clone();
         tauri::async_runtime::spawn(async move {
-            let mut lines = BufReader::new(stdout).lines();
-            while let Ok(Some(line)) = lines.next_line().await {
-                reader_client.handle_line(&app_handle, &line);
+            while let Some(event) = events.recv().await {
+                match event {
+                    CommandEvent::Stdout(bytes) => {
+                        let line = String::from_utf8_lossy(&bytes);
+                        reader_client.handle_line(&app_handle, &line);
+                    }
+                    CommandEvent::Stderr(bytes) => {
+                        eprintln!("mythoside-core: {}", String::from_utf8_lossy(&bytes));
+                    }
+                    CommandEvent::Error(err) => {
+                        eprintln!("mythoside-core process error: {err}");
+                    }
+                    CommandEvent::Terminated(payload) => {
+                        eprintln!("mythoside-core exited: {:?}", payload.code);
+                        break;
+                    }
+                    _ => {}
+                }
             }
         });
 
@@ -151,12 +119,8 @@ impl CoreClient {
         line.push('\n');
 
         {
-            let mut stdin = self.0.stdin.lock().await;
-            stdin
-                .write_all(line.as_bytes())
-                .await
-                .map_err(|e| e.to_string())?;
-            stdin.flush().await.map_err(|e| e.to_string())?;
+            let mut child = self.0.child.lock().unwrap();
+            child.write(line.as_bytes()).map_err(|e| e.to_string())?;
         }
 
         let response = rx.await.map_err(|_| {
@@ -174,20 +138,49 @@ impl CoreClient {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use mythoside_core::rpc::{Request, Response};
+    use std::path::PathBuf;
+    use std::process::Stdio;
+    use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+    use tokio::process::Command;
 
-    /// Exercises the exact I/O pattern `CoreClient` uses (spawn the real
-    /// compiled `mythoside-core` binary, write a request line to its stdin,
-    /// read a response line from its stdout) without going through
-    /// `CoreClient` itself, since that requires a live `AppHandle` (a mock
-    /// one needs the `tauri`/test` feature and a matching `Runtime` generic
-    /// this module doesn't carry). This is what proves the two crates'
-    /// shared `mythoside_core::rpc` types actually serialize compatibly
-    /// across the real process boundary, not just in-process.
+    /// Locates the same sidecar binary `scripts/prepare-sidecar.mjs`
+    /// produces, without going through Tauri's sidecar spawning (that needs
+    /// a live `AppHandle`, which needs a `Runtime` generic this module
+    /// doesn't carry — see the comment on `CoreClient`). This test isn't
+    /// about whether Tauri's own sidecar plumbing works (that's Tauri's
+    /// test suite's job); it's about whether the compiled binary actually
+    /// speaks the shared `mythoside_core::rpc` protocol correctly over its
+    /// own stdio, across a real process boundary.
+    fn sidecar_binary_path() -> PathBuf {
+        let output = std::process::Command::new("rustc")
+            .arg("-vV")
+            .output()
+            .expect("rustc should be available");
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let triple = stdout
+            .lines()
+            .find_map(|line| line.strip_prefix("host: "))
+            .expect("rustc -vV should report a host triple");
+
+        let binary_name = if triple.contains("windows") {
+            format!("mythoside-core-{triple}.exe")
+        } else {
+            format!("mythoside-core-{triple}")
+        };
+
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("binaries")
+            .join(binary_name)
+    }
+
     #[tokio::test]
     async fn spawns_the_real_core_binary_and_round_trips_a_request() {
-        let binary_path =
-            resolve_core_binary_path().expect("mythoside-core binary should be built already");
+        let binary_path = sidecar_binary_path();
+        assert!(
+            binary_path.exists(),
+            "sidecar binary missing at {binary_path:?} — run `node scripts/prepare-sidecar.mjs` first"
+        );
         let dir = tempfile::tempdir().unwrap();
 
         let mut child = Command::new(binary_path)
