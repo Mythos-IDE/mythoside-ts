@@ -55,7 +55,7 @@ export function TimelineView({ onNavigate }: ViewProps) {
 
   return (
     <SeriesAppShell activeView="timeline" onNavigate={onNavigate}>
-      <VStack gap={6} maxWidth={720}>
+      <VStack gap={6} width="100%">
         <HStack justify="between" align="center">
           <Heading level={2}>Zaman Çizgisi</Heading>
           <Button

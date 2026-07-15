@@ -4,6 +4,7 @@ import { SideNav, SideNavItem, SideNavSection } from "@astryxdesign/core/SideNav
 import { TopNav } from "@astryxdesign/core/TopNav";
 import { Breadcrumbs, BreadcrumbItem } from "@astryxdesign/core/Breadcrumbs";
 import { Heading } from "@astryxdesign/core/Text";
+import { VStack } from "@astryxdesign/core/Layout";
 import { useSeriesStore } from "../state/seriesStore";
 import type { View, ViewProps } from "../state/navigation";
 
@@ -105,7 +106,13 @@ export function SeriesAppShell({ activeView, onNavigate, children }: SeriesAppSh
         </SideNav>
       }
     >
-      {children}
+      {/* Every screen's own content stack sets a maxWidth but not centering
+          — without this wrapper, content sticks to the left edge on any
+          window wider than that maxWidth instead of sitting in the middle
+          of the available space. */}
+      <VStack width="100%" align="center">
+        {children}
+      </VStack>
     </AppShell>
   );
 }

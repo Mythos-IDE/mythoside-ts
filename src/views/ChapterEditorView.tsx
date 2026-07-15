@@ -124,7 +124,7 @@ export function ChapterEditorView({ onNavigate }: ViewProps) {
 
   return (
     <SeriesAppShell activeView="chapter-editor" onNavigate={onNavigate}>
-      <VStack gap={4} maxWidth={720}>
+      <VStack gap={4} width="100%" maxWidth="clamp(480px, 85%, 720px)">
         <HStack justify="between" align="center">
           <Heading level={2}>{currentChapter.chapter.title}</Heading>
           <Text type="supporting" color="secondary">
@@ -135,7 +135,7 @@ export function ChapterEditorView({ onNavigate }: ViewProps) {
 
         {error && <Banner status="error" title="Hata" description={error} />}
 
-        <BlockNoteView editor={editor} onChange={handleChange}>
+        <BlockNoteView editor={editor} onChange={handleChange} theme="light">
           <SuggestionMenuController
             triggerCharacter="@"
             getItems={async (query) => {

@@ -87,7 +87,7 @@ export function ChaptersView({ onNavigate }: ViewProps) {
 
   return (
     <SeriesAppShell activeView="chapters" onNavigate={onNavigate}>
-      <VStack gap={6} maxWidth={720}>
+      <VStack gap={6} width="100%">
         <HStack justify="between" align="center">
           <Heading level={2}>Bölümler</Heading>
           <Button

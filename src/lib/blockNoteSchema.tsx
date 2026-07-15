@@ -21,7 +21,8 @@ const Mention = createReactInlineContentSpec(
     render: (props) => (
       <span
         style={{
-          backgroundColor: "var(--color-surface-secondary, #3a3a3a)",
+          backgroundColor: "var(--color-accent-muted)",
+          color: "var(--color-text-accent)",
           borderRadius: 4,
           padding: "0 4px",
           fontWeight: 600,

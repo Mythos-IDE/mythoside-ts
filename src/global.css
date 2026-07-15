@@ -1,3 +1,14 @@
+/* "Editor Content Font" from DESIGN.md's Warm Nordic Editorial spec — the
+   manuscript prose itself, scoped to BlockNote's own container so the rest
+   of the app chrome stays on the Inter UI font (see src/lib/theme.ts).
+   Self-hosted via @fontsource/newsreader, not a Google Fonts CDN link —
+   consistent with this app's local-first/offline-capable posture. @import
+   rules must come before any other rule, so these stay at the top. */
+@import "@fontsource/newsreader/400.css";
+@import "@fontsource/newsreader/400-italic.css";
+@import "@fontsource/newsreader/500.css";
+@import "@fontsource/newsreader/600.css";
+
 html,
 body,
 #root {
@@ -6,4 +17,24 @@ body,
   margin: 0;
   padding: 0;
   overflow: hidden;
+  /* The root <Theme> syncs data-astryx-theme onto <html>, so these tokens
+     are already resolvable here — without this, screens that don't wrap
+     themselves in <AppShell> (e.g. LandingView, rendered before any series
+     is loaded) fall back to the browser's plain white default instead of
+     the "desk backdrop" canvas. */
+  background-color: var(--color-background-body);
+  color: var(--color-text-primary);
+}
+
+.bn-editor {
+  font-family: "Newsreader", serif;
+  border-radius: 0;
+  /* DESIGN.md's "Writing Paper" — a distinct floating sheet, not just text
+     sitting on the desk backdrop. Without a visible background/shadow, the
+     editor's real (correct, full-width) box is invisible, so short content
+     reads as "stuck to the left" — there's nothing marking the box's actual
+     right edge or center. */
+  background-color: var(--color-background-surface);
+  box-shadow: var(--shadow-low);
+  padding-block: 32px;
 }

@@ -55,7 +55,7 @@ export function CharactersView({ onNavigate }: ViewProps) {
 
   return (
     <SeriesAppShell activeView="characters" onNavigate={onNavigate}>
-      <VStack gap={6} maxWidth={720}>
+      <VStack gap={6} width="100%">
         <HStack justify="between" align="center">
           <Heading level={2}>Karakterler</Heading>
           <Button

@@ -48,7 +48,7 @@ export function TimelineNoteDetailView({ onNavigate }: ViewProps) {
 
   return (
     <SeriesAppShell activeView="timeline-note-detail" onNavigate={onNavigate}>
-      <VStack gap={6} maxWidth={480}>
+      <VStack gap={6} width="100%" maxWidth="clamp(320px, 85%, 560px)">
         <Heading level={2}>{currentNote.title}</Heading>
         <Card padding={6}>
           <VStack gap={4}>

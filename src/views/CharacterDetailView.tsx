@@ -67,7 +67,7 @@ export function CharacterDetailView({ onNavigate }: ViewProps) {
 
   return (
     <SeriesAppShell activeView="character-detail" onNavigate={onNavigate}>
-      <VStack gap={6} maxWidth={480}>
+      <VStack gap={6} width="100%" maxWidth="clamp(320px, 85%, 560px)">
         <Heading level={2}>{currentCharacter.name}</Heading>
         <Card padding={6}>
           <VStack gap={4}>

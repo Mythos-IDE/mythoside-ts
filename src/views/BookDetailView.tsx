@@ -41,7 +41,7 @@ export function BookDetailView({ onNavigate }: ViewProps) {
 
   return (
     <SeriesAppShell activeView="book-detail" onNavigate={onNavigate}>
-      <VStack gap={6} maxWidth={720}>
+      <VStack gap={6} width="100%">
         <Card padding={6}>
           <VStack gap={4}>
             <Heading level={2}>{currentBook.book.title}</Heading>

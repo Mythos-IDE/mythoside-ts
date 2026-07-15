@@ -56,7 +56,13 @@ export function LandingView({ onNavigate }: ViewProps) {
   };
 
   return (
-    <VStack gap={6} padding={8} maxWidth={480} style={{ margin: "0 auto" }}>
+    <VStack
+      gap={6}
+      padding={8}
+      width="100%"
+      maxWidth="clamp(320px, 85%, 560px)"
+      style={{ margin: "0 auto" }}
+    >
       <Heading level={1}>MythosIDE</Heading>
 
       {listError && <Banner status="error" title="Hata" description={listError} />}

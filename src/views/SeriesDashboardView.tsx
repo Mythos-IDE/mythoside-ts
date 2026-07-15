@@ -55,7 +55,7 @@ export function SeriesDashboardView({ onNavigate }: ViewProps) {
 
   return (
     <SeriesAppShell activeView="series-dashboard" onNavigate={onNavigate}>
-      <VStack gap={6} maxWidth={720}>
+      <VStack gap={6} width="100%">
         <Card padding={6}>
           <VStack gap={2}>
             <Heading level={2}>{series?.title}</Heading>

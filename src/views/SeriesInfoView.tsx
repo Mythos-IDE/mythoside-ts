@@ -48,7 +48,7 @@ export function SeriesInfoView({ onNavigate }: ViewProps) {
 
   return (
     <SeriesAppShell activeView="series-info" onNavigate={onNavigate}>
-      <VStack gap={6} maxWidth={480}>
+      <VStack gap={6} width="100%" maxWidth="clamp(320px, 85%, 560px)">
         <Heading level={2}>Seri Bilgileri</Heading>
         <Card padding={6}>
           <VStack gap={4}>
