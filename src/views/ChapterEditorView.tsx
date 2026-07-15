@@ -17,13 +17,14 @@ const AUTOSAVE_DEBOUNCE_MS = 800;
 // The actual writing surface: a block-based editor (BlockNote, built on
 // ProseMirror — bold/italic via Ctrl/Cmd+B/I come from its default schema,
 // no custom keymap needed here). The on-disk source of truth stays plain
-// Markdown (scene.content) — this view converts Markdown -> blocks once on
+// Markdown (chapter.content) — this view converts Markdown -> blocks once on
 // load and blocks -> Markdown on every autosave, so the block-editing
 // experience never leaks into the file format itself. The custom `schema`
 // (see lib/blockNoteSchema.tsx) adds the `@Karakter` mention inline
-// content type on top of BlockNote's defaults.
-export function SceneEditorView({ onNavigate }: ViewProps) {
-  const currentScene = useSeriesStore((state) => state.currentScene);
+// content type on top of BlockNote's defaults. No separate scene layer —
+// a chapter carries its own prose directly (see mythoside-core's models.rs).
+export function ChapterEditorView({ onNavigate }: ViewProps) {
+  const currentChapter = useSeriesStore((state) => state.currentChapter);
   const projectDir = useSeriesStore((state) => state.projectDir);
   const [error, setError] = useState("");
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
@@ -33,7 +34,7 @@ export function SceneEditorView({ onNavigate }: ViewProps) {
   const isSeedingRef = useRef(false);
   const latestMarkdownRef = useRef<string | null>(null);
 
-  const editor = useCreateBlockNote({ schema }, [currentScene?.scenePath]);
+  const editor = useCreateBlockNote({ schema }, [currentChapter?.chapterPath]);
 
   // Loaded once per mount for the "@" suggestion menu to filter client-side
   // — a series' character list is small, no need for a backend search
@@ -46,7 +47,7 @@ export function SceneEditorView({ onNavigate }: ViewProps) {
     });
   }, [projectDir]);
 
-  // Seeds the editor's initial content from the scene's Markdown exactly
+  // Seeds the editor's initial content from the chapter's Markdown exactly
   // once per mount — tryParseMarkdownToBlocks needs a live editor instance
   // to call it on, so this can't happen before useCreateBlockNote runs.
   // BlockNote's onChange fires synchronously on ANY local transaction,
@@ -56,19 +57,19 @@ export function SceneEditorView({ onNavigate }: ViewProps) {
   // autosave that re-persists the just-loaded (pre-edit) content, racing
   // against and sometimes overwriting a real edit's save.
   useEffect(() => {
-    if (!currentScene || hasSeededContent.current) return;
+    if (!currentChapter || hasSeededContent.current) return;
     hasSeededContent.current = true;
-    const blocks = editor.tryParseMarkdownToBlocks(currentScene.scene.content);
+    const blocks = editor.tryParseMarkdownToBlocks(currentChapter.chapter.content);
     isSeedingRef.current = true;
     editor.replaceBlocks(editor.document, blocks);
     isSeedingRef.current = false;
-  }, [currentScene, editor]);
+  }, [currentChapter, editor]);
 
   // Writes an already-exported Markdown string to disk — a plain async IPC
   // call, no editor/React rendering involved, so it's always safe to call
   // from anywhere (including an unmount cleanup).
-  const persist = async (scenePath: string, content: string) => {
-    const result = await commands.updateScene({ scenePath, content });
+  const persist = async (chapterPath: string, content: string) => {
+    const result = await commands.updateChapterContent({ chapterPath, content });
     if (result.status === "ok") {
       setSaveState("saved");
     } else {
@@ -88,16 +89,16 @@ export function SceneEditorView({ onNavigate }: ViewProps) {
     // mentions from the output) — and by the time a deferred retry could
     // run, the child BlockNoteView has already torn down elementRenderer.
     return () => {
-      if (saveTimeoutRef.current && currentScene && latestMarkdownRef.current !== null) {
+      if (saveTimeoutRef.current && currentChapter && latestMarkdownRef.current !== null) {
         clearTimeout(saveTimeoutRef.current);
-        persist(currentScene.scenePath, latestMarkdownRef.current);
+        persist(currentChapter.chapterPath, latestMarkdownRef.current);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentScene]);
+  }, [currentChapter]);
 
   const handleChange = () => {
-    if (!currentScene || isSeedingRef.current) return;
+    if (!currentChapter || isSeedingRef.current) return;
     setSaveState("saving");
     // Exported synchronously, in the same call stack as the live edit (a
     // DOM event, not a React commit/lifecycle phase) — the only context
@@ -108,24 +109,24 @@ export function SceneEditorView({ onNavigate }: ViewProps) {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
       if (latestMarkdownRef.current !== null) {
-        persist(currentScene.scenePath, latestMarkdownRef.current);
+        persist(currentChapter.chapterPath, latestMarkdownRef.current);
       }
     }, AUTOSAVE_DEBOUNCE_MS);
   };
 
-  if (!currentScene) {
+  if (!currentChapter) {
     return (
-      <SeriesAppShell activeView="scene-editor" onNavigate={onNavigate}>
-        <Text color="secondary">Bir sahne seçilmedi.</Text>
+      <SeriesAppShell activeView="chapter-editor" onNavigate={onNavigate}>
+        <Text color="secondary">Açık bir bölüm yok.</Text>
       </SeriesAppShell>
     );
   }
 
   return (
-    <SeriesAppShell activeView="scene-editor" onNavigate={onNavigate}>
+    <SeriesAppShell activeView="chapter-editor" onNavigate={onNavigate}>
       <VStack gap={4} maxWidth={720}>
         <HStack justify="between" align="center">
-          <Heading level={2}>{currentScene.scene.title}</Heading>
+          <Heading level={2}>{currentChapter.chapter.title}</Heading>
           <Text type="supporting" color="secondary">
             {saveState === "saving" && "Kaydediliyor…"}
             {saveState === "saved" && "Kaydedildi"}

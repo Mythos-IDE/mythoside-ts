@@ -13,8 +13,7 @@ import { AddLocationView } from "./views/AddLocationView";
 import { AddTimelineNoteView } from "./views/AddTimelineNoteView";
 import { ChaptersView } from "./views/ChaptersView";
 import { AddChapterView } from "./views/AddChapterView";
-import { ScenesView } from "./views/ScenesView";
-import { SceneEditorView } from "./views/SceneEditorView";
+import { ChapterEditorView } from "./views/ChapterEditorView";
 
 // No router library: a single-window desktop app with a handful of screens
 // has no URL-addressable content to justify one (see state/navigation.ts).
@@ -51,10 +50,8 @@ function App() {
       return <ChaptersView onNavigate={setView} />;
     case "add-chapter":
       return <AddChapterView onNavigate={setView} />;
-    case "scenes":
-      return <ScenesView onNavigate={setView} />;
-    case "scene-editor":
-      return <SceneEditorView onNavigate={setView} />;
+    case "chapter-editor":
+      return <ChapterEditorView onNavigate={setView} />;
   }
 }
 

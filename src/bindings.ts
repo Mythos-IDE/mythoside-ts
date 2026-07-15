@@ -52,24 +52,14 @@ export const commands = {
     typedError<ChapterHandle, string>(__TAURI_INVOKE("create_chapter", { input })),
   listChapters: (bookDir: string) =>
     typedError<ListChaptersOutput, string>(__TAURI_INVOKE("list_chapters", { bookDir })),
-  deleteChapter: (chapterDir: string) =>
-    typedError<null, string>(__TAURI_INVOKE("delete_chapter", { chapterDir })),
-  createScene: (input: CreateSceneInput) =>
-    typedError<SceneHandle, string>(__TAURI_INVOKE("create_scene", { input })),
-  listScenes: (chapterDir: string) =>
-    typedError<ListScenesOutput, string>(__TAURI_INVOKE("list_scenes", { chapterDir })),
-  updateScene: (input: UpdateSceneInput) =>
-    typedError<Scene, string>(__TAURI_INVOKE("update_scene", { input })),
-  deleteScene: (scenePath: string) =>
-    typedError<null, string>(__TAURI_INVOKE("delete_scene", { scenePath })),
+  deleteChapter: (chapterPath: string) =>
+    typedError<null, string>(__TAURI_INVOKE("delete_chapter", { chapterPath })),
+  updateChapterContent: (input: UpdateChapterContentInput) =>
+    typedError<Chapter, string>(__TAURI_INVOKE("update_chapter_content", { input })),
   updateChapter: (input: UpdateChapterInput) =>
     typedError<Chapter, string>(__TAURI_INVOKE("update_chapter", { input })),
-  renameScene: (input: RenameSceneInput) =>
-    typedError<Scene, string>(__TAURI_INVOKE("rename_scene", { input })),
   moveChapter: (bookDir: string, chapterId: string, direction: MoveDirection) =>
     typedError<null, string>(__TAURI_INVOKE("move_chapter", { bookDir, chapterId, direction })),
-  moveScene: (chapterDir: string, sceneId: string, direction: MoveDirection) =>
-    typedError<null, string>(__TAURI_INVOKE("move_scene", { chapterDir, sceneId, direction })),
 };
 
 /* Types */
@@ -99,12 +89,15 @@ export type Chapter = {
   bookId: string;
   title: string;
   order: number;
+  tags: string[];
+  characters: string[];
   createdAt: string;
+  content: string;
 };
 
 export type ChapterHandle = {
   chapter: Chapter;
-  chapterDir: string;
+  chapterPath: string;
 };
 
 export type Character = {
@@ -133,6 +126,9 @@ export type CreateChapterInput = {
   bookDir: string;
   bookId: string;
   title: string;
+  tags?: string[];
+  characters?: string[];
+  content?: string;
 };
 
 export type CreateCharacterInput = {
@@ -161,15 +157,6 @@ export type CreateNoteInput = {
   seriesId: string;
   title: string;
   type: NoteType;
-  content?: string;
-};
-
-export type CreateSceneInput = {
-  chapterDir: string;
-  chapterId: string;
-  title: string;
-  tags?: string[];
-  characters?: string[];
   content?: string;
 };
 
@@ -219,11 +206,6 @@ export type ListNotesOutput = {
   warnings: string[];
 };
 
-export type ListScenesOutput = {
-  scenes: SceneHandle[];
-  warnings: string[];
-};
-
 export type ListSeriesOutput = {
   /**
    *  Reuses `CreateSeriesOutput`'s `{series, project_dir}` pairing rather
@@ -260,27 +242,6 @@ export type Note = {
 
 export type NoteType = "lore" | "timeline";
 
-export type RenameSceneInput = {
-  scenePath: string;
-  title: string;
-};
-
-export type Scene = {
-  id: string;
-  chapterId: string;
-  title: string;
-  order: number;
-  tags: string[];
-  characters: string[];
-  createdAt: string;
-  content: string;
-};
-
-export type SceneHandle = {
-  scene: Scene;
-  scenePath: string;
-};
-
 export type Series = {
   id: string;
   title: string;
@@ -301,14 +262,14 @@ export type Series = {
   noteIds?: string[];
 };
 
-export type UpdateChapterInput = {
-  chapterDir: string;
-  title: string;
+export type UpdateChapterContentInput = {
+  chapterPath: string;
+  content: string;
 };
 
-export type UpdateSceneInput = {
-  scenePath: string;
-  content: string;
+export type UpdateChapterInput = {
+  chapterPath: string;
+  title: string;
 };
 
 export type UpdateSeriesInput = {

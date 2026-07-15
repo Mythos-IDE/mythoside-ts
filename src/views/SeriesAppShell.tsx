@@ -5,7 +5,6 @@ import { TopNav } from "@astryxdesign/core/TopNav";
 import { Breadcrumbs, BreadcrumbItem } from "@astryxdesign/core/Breadcrumbs";
 import { Heading } from "@astryxdesign/core/Text";
 import { useSeriesStore } from "../state/seriesStore";
-import { openChapterInEditor } from "../lib/openChapter";
 import type { View, ViewProps } from "../state/navigation";
 
 interface SeriesAppShellProps extends ViewProps {
@@ -13,18 +12,12 @@ interface SeriesAppShellProps extends ViewProps {
   children: ReactNode;
 }
 
-// Book-detail and everything under Chapters/Scenes shows a book breadcrumb
-// — add-character/add-location/add-timeline-note are series-scoped forms (a
+// Book-detail and everything under Chapters shows a book breadcrumb —
+// add-character/add-location/add-timeline-note are series-scoped forms (a
 // character can recur across multiple books), not entered "from inside" a
 // specific book, so they're deliberately excluded.
-const BOOK_SCOPED_VIEWS: View[] = [
-  "book-detail",
-  "chapters",
-  "add-chapter",
-  "scenes",
-  "scene-editor",
-];
-const CHAPTER_SCOPED_VIEWS: View[] = ["scenes", "scene-editor"];
+const BOOK_SCOPED_VIEWS: View[] = ["book-detail", "chapters", "add-chapter", "chapter-editor"];
+const CHAPTER_SCOPED_VIEWS: View[] = ["chapter-editor"];
 
 // Persistent chrome for every screen once a series is loaded — "Seri
 // Bilgileri" lives here (not as a dashboard-only tile) so it stays reachable
@@ -69,13 +62,8 @@ export function SeriesAppShell({ activeView, onNavigate, children }: SeriesAppSh
               )}
               {showChapterCrumb && (
                 <BreadcrumbItem
-                  onClick={() => {
-                    if (!currentChapter) return;
-                    openChapterInEditor(currentChapter).then((result) => {
-                      if (result.status === "ok") onNavigate("scene-editor");
-                    });
-                  }}
-                  isCurrent={activeView === "scene-editor"}
+                  onClick={() => onNavigate("chapter-editor")}
+                  isCurrent={activeView === "chapter-editor"}
                 >
                   {currentChapter.chapter.title}
                 </BreadcrumbItem>

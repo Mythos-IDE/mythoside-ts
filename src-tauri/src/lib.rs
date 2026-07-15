@@ -29,14 +29,9 @@ fn specta_builder() -> Builder<tauri::Wry> {
         commands::create_chapter,
         commands::list_chapters,
         commands::delete_chapter,
-        commands::create_scene,
-        commands::list_scenes,
-        commands::update_scene,
-        commands::delete_scene,
+        commands::update_chapter_content,
         commands::update_chapter,
-        commands::rename_scene,
         commands::move_chapter,
-        commands::move_scene,
     ])
 }
 

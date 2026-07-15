@@ -14,15 +14,11 @@ import type { ViewProps } from "../state/navigation";
 // same "don't make the user supply what the system can compute" call as
 // create_book/create_series.
 //
-// Creating a chapter also creates its first scene (titled the same as the
-// chapter) and goes straight into the editor for it — the point of adding a
-// chapter is to start writing, not to fill out a second "add a scene" form
-// first. Additional scenes within the chapter are still added from
-// ScenesView's own "Yeni Sahne" button.
+// Goes straight into the editor after creating — the point of adding a
+// chapter is to start writing, not to fill out a second form first.
 export function AddChapterView({ onNavigate }: ViewProps) {
   const currentBook = useSeriesStore((state) => state.currentBook);
   const setCurrentChapter = useSeriesStore((state) => state.setCurrentChapter);
-  const setCurrentScene = useSeriesStore((state) => state.setCurrentScene);
   const [title, setTitle] = useState("");
   const [error, setError] = useState("");
 
@@ -33,26 +29,15 @@ export function AddChapterView({ onNavigate }: ViewProps) {
       bookDir: currentBook.bookDir,
       bookId: currentBook.book.id,
       title,
-    });
-    if (chapterResult.status !== "ok") {
-      setError(chapterResult.error);
-      return;
-    }
-    setCurrentChapter(chapterResult.data);
-
-    const sceneResult = await commands.createScene({
-      chapterDir: chapterResult.data.chapterDir,
-      chapterId: chapterResult.data.chapter.id,
-      title,
       tags: [],
       characters: [],
       content: "",
     });
-    if (sceneResult.status === "ok") {
-      setCurrentScene(sceneResult.data);
-      onNavigate("scene-editor");
+    if (chapterResult.status === "ok") {
+      setCurrentChapter(chapterResult.data);
+      onNavigate("chapter-editor");
     } else {
-      setError(sceneResult.error);
+      setError(chapterResult.error);
     }
   };
 

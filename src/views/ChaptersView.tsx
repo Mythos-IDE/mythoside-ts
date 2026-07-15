@@ -9,7 +9,6 @@ import { Banner } from "@astryxdesign/core/Banner";
 import { AlertDialog } from "@astryxdesign/core/AlertDialog";
 import { commands, type ChapterHandle } from "../bindings";
 import { useSeriesStore } from "../state/seriesStore";
-import { openChapterInEditor } from "../lib/openChapter";
 import { SeriesAppShell } from "./SeriesAppShell";
 import { RenameDialog } from "./RenameDialog";
 import type { ViewProps } from "../state/navigation";
@@ -19,6 +18,7 @@ import type { ViewProps } from "../state/navigation";
 // level side nav.
 export function ChaptersView({ onNavigate }: ViewProps) {
   const currentBook = useSeriesStore((state) => state.currentBook);
+  const setCurrentChapter = useSeriesStore((state) => state.setCurrentChapter);
   const [chapters, setChapters] = useState<ChapterHandle[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState("");
@@ -41,15 +41,11 @@ export function ChaptersView({ onNavigate }: ViewProps) {
 
   useEffect(reload, [bookDir]);
 
-  // Goes straight to the writing surface — the point of opening a chapter is
-  // to write, not to browse a scene list first.
-  const openChapter = async (handle: ChapterHandle) => {
-    const result = await openChapterInEditor(handle);
-    if (result.status === "ok") {
-      onNavigate("scene-editor");
-    } else {
-      setError(result.error);
-    }
+  // Goes straight to the writing surface — a chapter carries its own prose
+  // directly, there's no separate scene list to browse first.
+  const openChapter = (handle: ChapterHandle) => {
+    setCurrentChapter(handle);
+    onNavigate("chapter-editor");
   };
 
   const pendingChapter = chapters.find((c) => c.chapter.id === pendingDeleteId);
@@ -57,7 +53,7 @@ export function ChaptersView({ onNavigate }: ViewProps) {
 
   const handleDelete = async () => {
     if (!pendingChapter) return;
-    const result = await commands.deleteChapter(pendingChapter.chapterDir);
+    const result = await commands.deleteChapter(pendingChapter.chapterPath);
     setPendingDeleteId(null);
     if (result.status === "ok") {
       reload();
@@ -69,7 +65,7 @@ export function ChaptersView({ onNavigate }: ViewProps) {
   const handleRename = async (title: string) => {
     if (!renamingChapter) return;
     const result = await commands.updateChapter({
-      chapterDir: renamingChapter.chapterDir,
+      chapterPath: renamingChapter.chapterPath,
       title,
     });
     if (result.status === "ok") {
@@ -163,7 +159,7 @@ export function ChaptersView({ onNavigate }: ViewProps) {
         isOpen={pendingDeleteId !== null}
         onOpenChange={(isOpen) => !isOpen && setPendingDeleteId(null)}
         title="Bölümü sil"
-        description={`"${pendingChapter?.chapter.title ?? ""}" bölümünü ve içindeki tüm sahneleri silmek istediğinizden emin misiniz? Bu işlem çöp kutusuna taşınarak geri alınabilir.`}
+        description={`"${pendingChapter?.chapter.title ?? ""}" bölümünü ve içeriğini silmek istediğinizden emin misiniz? Bu işlem çöp kutusuna taşınarak geri alınabilir.`}
         actionLabel="Sil"
         onAction={handleDelete}
       />

@@ -12,9 +12,8 @@ interface RenameDialogProps {
   onSave: (newTitle: string) => void;
 }
 
-// Shared by ChaptersView and ScenesView — both need the identical "rename
-// this entity" shape (title + Save/Cancel), just pointed at a different
-// backend command by the caller.
+// Shared "rename this entity" shape (title + Save/Cancel) — the caller
+// points it at whichever backend command applies.
 export function RenameDialog({
   isOpen,
   onOpenChange,

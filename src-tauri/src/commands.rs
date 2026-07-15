@@ -1,12 +1,12 @@
 use crate::core_client::CoreClient;
 use mythoside_core::manuscript::commands::{
     BookHandle, ChapterHandle, CreateBookInput, CreateChapterInput, CreateCharacterInput,
-    CreateLocationInput, CreateNoteInput, CreateSceneInput, CreateSeriesInput, CreateSeriesOutput,
-    ListBooksOutput, ListChaptersOutput, ListCharactersOutput, ListLocationsOutput,
-    ListNotesOutput, ListScenesOutput, ListSeriesOutput, MoveDirection, RenameSceneInput,
-    SceneHandle, UpdateChapterInput, UpdateSceneInput, UpdateSeriesInput,
+    CreateLocationInput, CreateNoteInput, CreateSeriesInput, CreateSeriesOutput, ListBooksOutput,
+    ListChaptersOutput, ListCharactersOutput, ListLocationsOutput, ListNotesOutput,
+    ListSeriesOutput, MoveDirection, UpdateChapterContentInput, UpdateChapterInput,
+    UpdateSeriesInput,
 };
-use mythoside_core::manuscript::models::{Chapter, Character, Location, Note, Scene, Series};
+use mythoside_core::manuscript::models::{Chapter, Character, Location, Note, Series};
 use serde_json::json;
 use tauri::State;
 
@@ -238,53 +238,22 @@ pub async fn list_chapters(
 #[specta::specta]
 pub async fn delete_chapter(
     core: State<'_, CoreClient>,
-    chapter_dir: String,
+    chapter_path: String,
 ) -> Result<(), String> {
-    core.call("delete_chapter", json!({ "chapterDir": chapter_dir }))
+    core.call("delete_chapter", json!({ "chapterPath": chapter_path }))
         .await?;
     Ok(())
 }
 
 #[tauri::command]
 #[specta::specta]
-pub async fn create_scene(
+pub async fn update_chapter_content(
     core: State<'_, CoreClient>,
-    input: CreateSceneInput,
-) -> Result<SceneHandle, String> {
+    input: UpdateChapterContentInput,
+) -> Result<Chapter, String> {
     let params = serde_json::to_value(input).map_err(|e| e.to_string())?;
-    let result = core.call("create_scene", params).await?;
+    let result = core.call("update_chapter_content", params).await?;
     serde_json::from_value(result).map_err(|e| e.to_string())
-}
-
-#[tauri::command]
-#[specta::specta]
-pub async fn list_scenes(
-    core: State<'_, CoreClient>,
-    chapter_dir: String,
-) -> Result<ListScenesOutput, String> {
-    let result = core
-        .call("list_scenes", json!({ "chapterDir": chapter_dir }))
-        .await?;
-    serde_json::from_value(result).map_err(|e| e.to_string())
-}
-
-#[tauri::command]
-#[specta::specta]
-pub async fn update_scene(
-    core: State<'_, CoreClient>,
-    input: UpdateSceneInput,
-) -> Result<Scene, String> {
-    let params = serde_json::to_value(input).map_err(|e| e.to_string())?;
-    let result = core.call("update_scene", params).await?;
-    serde_json::from_value(result).map_err(|e| e.to_string())
-}
-
-#[tauri::command]
-#[specta::specta]
-pub async fn delete_scene(core: State<'_, CoreClient>, scene_path: String) -> Result<(), String> {
-    core.call("delete_scene", json!({ "scenePath": scene_path }))
-        .await?;
-    Ok(())
 }
 
 #[tauri::command]
@@ -300,17 +269,6 @@ pub async fn update_chapter(
 
 #[tauri::command]
 #[specta::specta]
-pub async fn rename_scene(
-    core: State<'_, CoreClient>,
-    input: RenameSceneInput,
-) -> Result<Scene, String> {
-    let params = serde_json::to_value(input).map_err(|e| e.to_string())?;
-    let result = core.call("rename_scene", params).await?;
-    serde_json::from_value(result).map_err(|e| e.to_string())
-}
-
-#[tauri::command]
-#[specta::specta]
 pub async fn move_chapter(
     core: State<'_, CoreClient>,
     book_dir: String,
@@ -320,22 +278,6 @@ pub async fn move_chapter(
     core.call(
         "move_chapter",
         json!({ "bookDir": book_dir, "chapterId": chapter_id, "direction": direction }),
-    )
-    .await?;
-    Ok(())
-}
-
-#[tauri::command]
-#[specta::specta]
-pub async fn move_scene(
-    core: State<'_, CoreClient>,
-    chapter_dir: String,
-    scene_id: String,
-    direction: MoveDirection,
-) -> Result<(), String> {
-    core.call(
-        "move_scene",
-        json!({ "chapterDir": chapter_dir, "sceneId": scene_id, "direction": direction }),
     )
     .await?;
     Ok(())
