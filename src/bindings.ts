@@ -23,6 +23,7 @@ export const commands = {
     typedError<CreateSeriesOutput, string>(__TAURI_INVOKE("create_series", { input })),
   getSeries: (projectDir: string) =>
     typedError<Series, string>(__TAURI_INVOKE("get_series", { projectDir })),
+  listSeries: () => typedError<ListSeriesOutput, string>(__TAURI_INVOKE("list_series")),
   updateSeries: (input: UpdateSeriesInput) =>
     typedError<Series, string>(__TAURI_INVOKE("update_series", { input })),
   createBook: (input: CreateBookInput) =>
@@ -143,6 +144,16 @@ export type ListLocationsOutput = {
 
 export type ListNotesOutput = {
   notes: Note[];
+  warnings: string[];
+};
+
+export type ListSeriesOutput = {
+  /**
+   *  Reuses `CreateSeriesOutput`'s `{series, project_dir}` pairing rather
+   *  than inventing an identically-shaped struct — every caller that
+   *  needs to open a series already needs both fields together.
+   */
+  series: CreateSeriesOutput[];
   warnings: string[];
 };
 

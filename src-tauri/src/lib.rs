@@ -13,6 +13,7 @@ fn specta_builder() -> Builder<tauri::Wry> {
         commands::list_characters,
         commands::create_series,
         commands::get_series,
+        commands::list_series,
         commands::update_series,
         commands::create_book,
         commands::list_books,

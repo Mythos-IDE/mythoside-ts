@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { View } from "./state/navigation";
-import { CreateSeriesView } from "./views/CreateSeriesView";
+import { LandingView } from "./views/LandingView";
 import { SeriesDashboardView } from "./views/SeriesDashboardView";
 import { SeriesInfoView } from "./views/SeriesInfoView";
 import { AddBookView } from "./views/AddBookView";
@@ -15,11 +15,11 @@ import { AddTimelineNoteView } from "./views/AddTimelineNoteView";
 // matching screen; every screen gets series/book context from seriesStore,
 // not through props threaded down from here.
 function App() {
-  const [view, setView] = useState<View>("create-series");
+  const [view, setView] = useState<View>("landing");
 
   switch (view) {
-    case "create-series":
-      return <CreateSeriesView onNavigate={setView} />;
+    case "landing":
+      return <LandingView onNavigate={setView} />;
     case "series-dashboard":
       return <SeriesDashboardView onNavigate={setView} />;
     case "series-info":

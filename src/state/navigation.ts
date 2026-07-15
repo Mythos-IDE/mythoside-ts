@@ -4,7 +4,7 @@
 // loaded series/book) lives in seriesStore instead, not here — see its
 // comment for why the two are kept separate.
 export type View =
-  | "create-series"
+  | "landing"
   | "series-dashboard"
   | "series-info"
   | "add-book"

@@ -2,7 +2,7 @@ use crate::core_client::CoreClient;
 use mythoside_core::manuscript::commands::{
     BookHandle, CreateBookInput, CreateCharacterInput, CreateLocationInput, CreateNoteInput,
     CreateSeriesInput, CreateSeriesOutput, ListBooksOutput, ListCharactersOutput,
-    ListLocationsOutput, ListNotesOutput, UpdateSeriesInput,
+    ListLocationsOutput, ListNotesOutput, ListSeriesOutput, UpdateSeriesInput,
 };
 use mythoside_core::manuscript::models::{Character, Location, Note, Series};
 use serde_json::json;
@@ -46,6 +46,13 @@ pub async fn get_series(
     let result = core
         .call("get_series", json!({ "projectDir": project_dir }))
         .await?;
+    serde_json::from_value(result).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn list_series(core: State<'_, CoreClient>) -> Result<ListSeriesOutput, String> {
+    let result = core.call("list_series", serde_json::Value::Null).await?;
     serde_json::from_value(result).map_err(|e| e.to_string())
 }
 
