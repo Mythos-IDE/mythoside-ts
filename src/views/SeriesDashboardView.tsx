@@ -5,6 +5,7 @@ import { ClickableCard } from "@astryxdesign/core/ClickableCard";
 import { Text, Heading } from "@astryxdesign/core/Text";
 import { Button } from "@astryxdesign/core/Button";
 import { Banner } from "@astryxdesign/core/Banner";
+import { AlertDialog } from "@astryxdesign/core/AlertDialog";
 import { commands, type BookHandle } from "../bindings";
 import { useSeriesStore } from "../state/seriesStore";
 import { formatCreatedAt } from "../lib/formatDate";
@@ -18,8 +19,9 @@ export function SeriesDashboardView({ onNavigate }: ViewProps) {
   const [books, setBooks] = useState<BookHandle[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState("");
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
-  useEffect(() => {
+  const reload = () => {
     if (!projectDir) return;
     commands.listBooks(projectDir).then((result) => {
       if (result.status === "ok") {
@@ -29,11 +31,26 @@ export function SeriesDashboardView({ onNavigate }: ViewProps) {
         setError(result.error);
       }
     });
-  }, [projectDir]);
+  };
+
+  useEffect(reload, [projectDir]);
 
   const openBook = (book: BookHandle) => {
     setCurrentBook(book);
     onNavigate("book-detail");
+  };
+
+  const pendingBook = books.find((b) => b.book.id === pendingDeleteId);
+
+  const handleDelete = async () => {
+    if (!pendingBook) return;
+    const result = await commands.deleteBook(pendingBook.bookDir);
+    setPendingDeleteId(null);
+    if (result.status === "ok") {
+      reload();
+    } else {
+      setError(result.error);
+    }
   };
 
   return (
@@ -74,16 +91,32 @@ export function SeriesDashboardView({ onNavigate }: ViewProps) {
               label={`${handle.book.title} kitabını aç`}
               onClick={() => openBook(handle)}
             >
-              <VStack gap={1}>
-                <Heading level={4}>
-                  {handle.book.order}. {handle.book.title}
-                </Heading>
-                <Text color="secondary">{handle.book.synopsis || "Özet yok."}</Text>
-              </VStack>
+              <HStack justify="between" align="center">
+                <VStack gap={1}>
+                  <Heading level={4}>
+                    {handle.book.order}. {handle.book.title}
+                  </Heading>
+                  <Text color="secondary">{handle.book.synopsis || "Özet yok."}</Text>
+                </VStack>
+                <Button
+                  label="Sil"
+                  variant="destructive"
+                  clickAction={() => setPendingDeleteId(handle.book.id)}
+                />
+              </HStack>
             </ClickableCard>
           ))}
         </VStack>
       </VStack>
+
+      <AlertDialog
+        isOpen={pendingDeleteId !== null}
+        onOpenChange={(isOpen) => !isOpen && setPendingDeleteId(null)}
+        title="Kitabı sil"
+        description={`"${pendingBook?.book.title ?? ""}" kitabını silmek istediğinizden emin misiniz? Bu işlem çöp kutusuna taşınarak geri alınabilir.`}
+        actionLabel="Sil"
+        onAction={handleDelete}
+      />
     </SeriesAppShell>
   );
 }

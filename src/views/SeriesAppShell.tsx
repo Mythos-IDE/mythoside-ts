@@ -12,20 +12,26 @@ interface SeriesAppShellProps extends ViewProps {
   children: ReactNode;
 }
 
-const BOOK_SCOPED_VIEWS: View[] = [
-  "book-detail",
-  "add-character",
-  "add-location",
-  "add-timeline-note",
-];
+// Only book-detail itself shows a book breadcrumb now — add-character/
+// add-location/add-timeline-note are series-scoped forms (a character can
+// recur across multiple books), not entered "from inside" a specific book.
+const BOOK_SCOPED_VIEWS: View[] = ["book-detail"];
 
 // Persistent chrome for every screen once a series is loaded — "Seri
 // Bilgileri" lives here (not as a dashboard-only tile) so it stays reachable
-// from three levels deep in a book's detail screen too.
+// from three levels deep in a book's detail screen too. "Serilerim" is the
+// only way back out to the series picker (LandingView) — without it there
+// was no way to leave a series once inside one.
 export function SeriesAppShell({ activeView, onNavigate, children }: SeriesAppShellProps) {
   const series = useSeriesStore((state) => state.series);
   const currentBook = useSeriesStore((state) => state.currentBook);
+  const reset = useSeriesStore((state) => state.reset);
   const showBookCrumb = BOOK_SCOPED_VIEWS.includes(activeView) && currentBook;
+
+  const goHome = () => {
+    reset();
+    onNavigate("landing");
+  };
 
   return (
     <AppShell
@@ -35,6 +41,7 @@ export function SeriesAppShell({ activeView, onNavigate, children }: SeriesAppSh
           heading={<Heading level={4}>MythosIDE</Heading>}
           startContent={
             <Breadcrumbs>
+              <BreadcrumbItem onClick={goHome}>Serilerim</BreadcrumbItem>
               <BreadcrumbItem
                 onClick={() => onNavigate("series-dashboard")}
                 isCurrent={activeView === "series-dashboard"}
@@ -49,10 +56,26 @@ export function SeriesAppShell({ activeView, onNavigate, children }: SeriesAppSh
       sideNav={
         <SideNav>
           <SideNavSection title="Seri">
+            <SideNavItem label="Serilerim" onClick={goHome} />
             <SideNavItem
               label="Kitaplar"
               isSelected={activeView === "series-dashboard"}
               onClick={() => onNavigate("series-dashboard")}
+            />
+            <SideNavItem
+              label="Karakterler"
+              isSelected={activeView === "characters"}
+              onClick={() => onNavigate("characters")}
+            />
+            <SideNavItem
+              label="Lokasyonlar"
+              isSelected={activeView === "locations"}
+              onClick={() => onNavigate("locations")}
+            />
+            <SideNavItem
+              label="Zaman Çizgisi"
+              isSelected={activeView === "timeline"}
+              onClick={() => onNavigate("timeline")}
             />
             <SideNavItem
               label="Seri Bilgileri"

@@ -21,6 +21,11 @@ fn specta_builder() -> Builder<tauri::Wry> {
         commands::list_locations,
         commands::create_note,
         commands::list_notes,
+        commands::delete_series,
+        commands::delete_book,
+        commands::delete_character,
+        commands::delete_location,
+        commands::delete_note,
     ])
 }
 

@@ -10,6 +10,7 @@ interface SeriesStore {
   currentBook: BookHandle | null;
   setSeries: (series: Series, projectDir: string) => void;
   setCurrentBook: (book: BookHandle | null) => void;
+  reset: () => void;
 }
 
 export const useSeriesStore = create<SeriesStore>((set) => ({
@@ -18,4 +19,5 @@ export const useSeriesStore = create<SeriesStore>((set) => ({
   currentBook: null,
   setSeries: (series, projectDir) => set({ series, projectDir }),
   setCurrentBook: (book) => set({ currentBook: book }),
+  reset: () => set({ projectDir: null, series: null, currentBook: null }),
 }));

@@ -17,8 +17,8 @@ export const commands = {
    */
   createCharacter: (input: CreateCharacterInput) =>
     typedError<Character, string>(__TAURI_INVOKE("create_character", { input })),
-  listCharacters: (bookDir: string) =>
-    typedError<ListCharactersOutput, string>(__TAURI_INVOKE("list_characters", { bookDir })),
+  listCharacters: (projectDir: string) =>
+    typedError<ListCharactersOutput, string>(__TAURI_INVOKE("list_characters", { projectDir })),
   createSeries: (input: CreateSeriesInput) =>
     typedError<CreateSeriesOutput, string>(__TAURI_INVOKE("create_series", { input })),
   getSeries: (projectDir: string) =>
@@ -32,12 +32,22 @@ export const commands = {
     typedError<ListBooksOutput, string>(__TAURI_INVOKE("list_books", { projectDir })),
   createLocation: (input: CreateLocationInput) =>
     typedError<Location, string>(__TAURI_INVOKE("create_location", { input })),
-  listLocations: (bookDir: string) =>
-    typedError<ListLocationsOutput, string>(__TAURI_INVOKE("list_locations", { bookDir })),
+  listLocations: (projectDir: string) =>
+    typedError<ListLocationsOutput, string>(__TAURI_INVOKE("list_locations", { projectDir })),
   createNote: (input: CreateNoteInput) =>
     typedError<Note, string>(__TAURI_INVOKE("create_note", { input })),
-  listNotes: (bookDir: string) =>
-    typedError<ListNotesOutput, string>(__TAURI_INVOKE("list_notes", { bookDir })),
+  listNotes: (projectDir: string) =>
+    typedError<ListNotesOutput, string>(__TAURI_INVOKE("list_notes", { projectDir })),
+  deleteSeries: (projectDir: string) =>
+    typedError<null, string>(__TAURI_INVOKE("delete_series", { projectDir })),
+  deleteBook: (bookDir: string) =>
+    typedError<null, string>(__TAURI_INVOKE("delete_book", { bookDir })),
+  deleteCharacter: (projectDir: string, characterId: string) =>
+    typedError<null, string>(__TAURI_INVOKE("delete_character", { projectDir, characterId })),
+  deleteLocation: (projectDir: string, locationId: string) =>
+    typedError<null, string>(__TAURI_INVOKE("delete_location", { projectDir, locationId })),
+  deleteNote: (projectDir: string, noteId: string) =>
+    typedError<null, string>(__TAURI_INVOKE("delete_note", { projectDir, noteId })),
 };
 
 /* Types */
@@ -54,16 +64,22 @@ export type BookHandle = {
   book: Book;
   /**
    *  Where `book.yaml` actually landed — mirrors `CreateSeriesOutput`'s
-   *  `project_dir` pairing. Character/Location/Note all key off a book,
-   *  not a series (see their `book_id`/`book_dir` fields), so callers need
-   *  this to create any of those under the returned book.
+   *  `project_dir` pairing. Needed for anything that's genuinely
+   *  book-scoped (currently just `delete_book`) — Character/Location/Note
+   *  live at the series level instead (see their `series_id` fields), not
+   *  under this directory.
    */
   bookDir: string;
 };
 
 export type Character = {
   id: string;
-  bookId: string;
+  /**
+   *  Series-level, not book-level: the same character can appear across
+   *  multiple books in the series (Book 1, Book 2, ...), so ownership
+   *  can't be pinned to a single book.
+   */
+  seriesId: string;
   name: string;
   role: string;
   attributes: { [key in string]: string };
@@ -80,11 +96,12 @@ export type CreateBookInput = {
 
 export type CreateCharacterInput = {
   /**
-   *  Filesystem path to the book's folder — the character file is written
-   *  to `<book_dir>/characters/<slug>.md`.
+   *  Filesystem path to the series' project root — the character file is
+   *  written to `<project_dir>/characters/<slug>.md`. Series-level, not
+   *  book-level: the same character can recur across multiple books.
    */
-  bookDir: string;
-  bookId: string;
+  projectDir: string;
+  seriesId: string;
   name: string;
   role: string;
   bio?: string;
@@ -92,15 +109,15 @@ export type CreateCharacterInput = {
 };
 
 export type CreateLocationInput = {
-  bookDir: string;
-  bookId: string;
+  projectDir: string;
+  seriesId: string;
   name: string;
   description?: string;
 };
 
 export type CreateNoteInput = {
-  bookDir: string;
-  bookId: string;
+  projectDir: string;
+  seriesId: string;
   title: string;
   type: NoteType;
   content?: string;
@@ -159,7 +176,11 @@ export type ListSeriesOutput = {
 
 export type Location = {
   id: string;
-  bookId: string;
+  /**
+   *  Series-level for the same reason as `Character::series_id` — a
+   *  location can recur across multiple books.
+   */
+  seriesId: string;
   name: string;
   createdAt: string;
   description: string;
@@ -167,7 +188,8 @@ export type Location = {
 
 export type Note = {
   id: string;
-  bookId: string;
+  /**  Series-level for the same reason as `Character::series_id`. */
+  seriesId: string;
   title: string;
   type: NoteType;
   createdAt: string;

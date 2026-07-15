@@ -15,25 +15,26 @@ import type { ViewProps } from "../state/navigation";
 // project of its own; create_character still accepts attributes, this form
 // just always sends an empty map.
 export function AddCharacterView({ onNavigate }: ViewProps) {
-  const currentBook = useSeriesStore((state) => state.currentBook);
+  const projectDir = useSeriesStore((state) => state.projectDir);
+  const series = useSeriesStore((state) => state.series);
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [bio, setBio] = useState("");
   const [error, setError] = useState("");
 
   const handleCreate = async () => {
-    if (!currentBook) return;
+    if (!projectDir || !series) return;
     setError("");
     const result = await commands.createCharacter({
-      bookDir: currentBook.bookDir,
-      bookId: currentBook.book.id,
+      projectDir,
+      seriesId: series.id,
       name,
       role,
       bio,
       attributes: {},
     });
     if (result.status === "ok") {
-      onNavigate("book-detail");
+      onNavigate("characters");
     } else {
       setError(result.error);
     }
@@ -58,7 +59,7 @@ export function AddCharacterView({ onNavigate }: ViewProps) {
               <Button
                 label="Vazgeç"
                 variant="secondary"
-                clickAction={() => onNavigate("book-detail")}
+                clickAction={() => onNavigate("characters")}
               />
             </HStack>
           </VStack>

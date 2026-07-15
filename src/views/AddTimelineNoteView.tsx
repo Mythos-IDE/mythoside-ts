@@ -15,23 +15,24 @@ import type { ViewProps } from "../state/navigation";
 // user-selectable here since the button that leads here already says
 // "Zaman Çizgisi Ekle". Lore notes aren't surfaced in the UI this pass.
 export function AddTimelineNoteView({ onNavigate }: ViewProps) {
-  const currentBook = useSeriesStore((state) => state.currentBook);
+  const projectDir = useSeriesStore((state) => state.projectDir);
+  const series = useSeriesStore((state) => state.series);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [error, setError] = useState("");
 
   const handleCreate = async () => {
-    if (!currentBook) return;
+    if (!projectDir || !series) return;
     setError("");
     const result = await commands.createNote({
-      bookDir: currentBook.bookDir,
-      bookId: currentBook.book.id,
+      projectDir,
+      seriesId: series.id,
       title,
       type: "timeline",
       content,
     });
     if (result.status === "ok") {
-      onNavigate("book-detail");
+      onNavigate("timeline");
     } else {
       setError(result.error);
     }
@@ -55,7 +56,7 @@ export function AddTimelineNoteView({ onNavigate }: ViewProps) {
               <Button
                 label="Vazgeç"
                 variant="secondary"
-                clickAction={() => onNavigate("book-detail")}
+                clickAction={() => onNavigate("timeline")}
               />
             </HStack>
           </VStack>

@@ -105,10 +105,10 @@ pub async fn create_location(
 #[specta::specta]
 pub async fn list_locations(
     core: State<'_, CoreClient>,
-    book_dir: String,
+    project_dir: String,
 ) -> Result<ListLocationsOutput, String> {
     let result = core
-        .call("list_locations", json!({ "bookDir": book_dir }))
+        .call("list_locations", json!({ "projectDir": project_dir }))
         .await?;
     serde_json::from_value(result).map_err(|e| e.to_string())
 }
@@ -117,10 +117,10 @@ pub async fn list_locations(
 #[specta::specta]
 pub async fn list_characters(
     core: State<'_, CoreClient>,
-    book_dir: String,
+    project_dir: String,
 ) -> Result<ListCharactersOutput, String> {
     let result = core
-        .call("list_characters", json!({ "bookDir": book_dir }))
+        .call("list_characters", json!({ "projectDir": project_dir }))
         .await?;
     serde_json::from_value(result).map_err(|e| e.to_string())
 }
@@ -140,12 +140,73 @@ pub async fn create_note(
 #[specta::specta]
 pub async fn list_notes(
     core: State<'_, CoreClient>,
-    book_dir: String,
+    project_dir: String,
 ) -> Result<ListNotesOutput, String> {
     let result = core
-        .call("list_notes", json!({ "bookDir": book_dir }))
+        .call("list_notes", json!({ "projectDir": project_dir }))
         .await?;
     serde_json::from_value(result).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn delete_series(core: State<'_, CoreClient>, project_dir: String) -> Result<(), String> {
+    core.call("delete_series", json!({ "projectDir": project_dir }))
+        .await?;
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn delete_book(core: State<'_, CoreClient>, book_dir: String) -> Result<(), String> {
+    core.call("delete_book", json!({ "bookDir": book_dir }))
+        .await?;
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn delete_character(
+    core: State<'_, CoreClient>,
+    project_dir: String,
+    character_id: String,
+) -> Result<(), String> {
+    core.call(
+        "delete_character",
+        json!({ "projectDir": project_dir, "characterId": character_id }),
+    )
+    .await?;
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn delete_location(
+    core: State<'_, CoreClient>,
+    project_dir: String,
+    location_id: String,
+) -> Result<(), String> {
+    core.call(
+        "delete_location",
+        json!({ "projectDir": project_dir, "locationId": location_id }),
+    )
+    .await?;
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn delete_note(
+    core: State<'_, CoreClient>,
+    project_dir: String,
+    note_id: String,
+) -> Result<(), String> {
+    core.call(
+        "delete_note",
+        json!({ "projectDir": project_dir, "noteId": note_id }),
+    )
+    .await?;
+    Ok(())
 }
 
 #[tauri::command]

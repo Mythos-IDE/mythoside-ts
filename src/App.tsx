@@ -5,6 +5,9 @@ import { SeriesDashboardView } from "./views/SeriesDashboardView";
 import { SeriesInfoView } from "./views/SeriesInfoView";
 import { AddBookView } from "./views/AddBookView";
 import { BookDetailView } from "./views/BookDetailView";
+import { CharactersView } from "./views/CharactersView";
+import { LocationsView } from "./views/LocationsView";
+import { TimelineView } from "./views/TimelineView";
 import { AddCharacterView } from "./views/AddCharacterView";
 import { AddLocationView } from "./views/AddLocationView";
 import { AddTimelineNoteView } from "./views/AddTimelineNoteView";
@@ -28,6 +31,12 @@ function App() {
       return <AddBookView onNavigate={setView} />;
     case "book-detail":
       return <BookDetailView onNavigate={setView} />;
+    case "characters":
+      return <CharactersView onNavigate={setView} />;
+    case "locations":
+      return <LocationsView onNavigate={setView} />;
+    case "timeline":
+      return <TimelineView onNavigate={setView} />;
     case "add-character":
       return <AddCharacterView onNavigate={setView} />;
     case "add-location":

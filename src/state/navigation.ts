@@ -9,6 +9,9 @@ export type View =
   | "series-info"
   | "add-book"
   | "book-detail"
+  | "characters"
+  | "locations"
+  | "timeline"
   | "add-character"
   | "add-location"
   | "add-timeline-note";

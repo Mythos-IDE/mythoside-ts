@@ -12,22 +12,23 @@ import { SeriesAppShell } from "./SeriesAppShell";
 import type { ViewProps } from "../state/navigation";
 
 export function AddLocationView({ onNavigate }: ViewProps) {
-  const currentBook = useSeriesStore((state) => state.currentBook);
+  const projectDir = useSeriesStore((state) => state.projectDir);
+  const series = useSeriesStore((state) => state.series);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
 
   const handleCreate = async () => {
-    if (!currentBook) return;
+    if (!projectDir || !series) return;
     setError("");
     const result = await commands.createLocation({
-      bookDir: currentBook.bookDir,
-      bookId: currentBook.book.id,
+      projectDir,
+      seriesId: series.id,
       name,
       description,
     });
     if (result.status === "ok") {
-      onNavigate("book-detail");
+      onNavigate("locations");
     } else {
       setError(result.error);
     }
@@ -57,7 +58,7 @@ export function AddLocationView({ onNavigate }: ViewProps) {
               <Button
                 label="Vazgeç"
                 variant="secondary"
-                clickAction={() => onNavigate("book-detail")}
+                clickAction={() => onNavigate("locations")}
               />
             </HStack>
           </VStack>
