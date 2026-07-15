@@ -203,6 +203,19 @@ export type Series = {
   title: string;
   description: string;
   createdAt: string;
+  /**
+   *  Convenience index of this series' entities, kept in sync (best-effort)
+   *  by the create_*\/delete_* commands — NOT the source of truth. Listing
+   *  (list_books/list_characters/etc.) still scans the actual directories;
+   *  this is just a human-readable summary living in the same file, so a
+   *  glance at series.yaml shows what belongs to it without walking the
+   *  filesystem. `#[serde(default)]` so series.yaml files written before
+   *  this field existed still parse.
+   */
+  bookIds?: string[];
+  characterIds?: string[];
+  locationIds?: string[];
+  noteIds?: string[];
 };
 
 export type UpdateSeriesInput = {

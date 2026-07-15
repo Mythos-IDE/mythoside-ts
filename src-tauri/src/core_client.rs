@@ -196,8 +196,8 @@ mod tests {
             id: 1,
             method: "create_character".to_string(),
             params: serde_json::json!({
-                "bookDir": dir.path().to_string_lossy(),
-                "bookId": "book-1",
+                "projectDir": dir.path().to_string_lossy(),
+                "seriesId": "series-1",
                 "name": "Lyra Vance",
                 "role": "Protagonist",
             }),
