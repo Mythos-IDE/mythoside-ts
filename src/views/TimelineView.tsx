@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { VStack, HStack } from "@astryxdesign/core/Layout";
-import { Card } from "@astryxdesign/core/Card";
+import { ClickableCard } from "@astryxdesign/core/ClickableCard";
 import { Text, Heading } from "@astryxdesign/core/Text";
 import { Button } from "@astryxdesign/core/Button";
 import { Banner } from "@astryxdesign/core/Banner";
@@ -15,6 +15,7 @@ import type { ViewProps } from "../state/navigation";
 // "timeline" — lore notes aren't surfaced in the UI yet.
 export function TimelineView({ onNavigate }: ViewProps) {
   const projectDir = useSeriesStore((state) => state.projectDir);
+  const setCurrentNote = useSeriesStore((state) => state.setCurrentNote);
   const [notes, setNotes] = useState<Note[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState("");
@@ -43,6 +44,11 @@ export function TimelineView({ onNavigate }: ViewProps) {
     } else {
       setError(result.error);
     }
+  };
+
+  const openNote = (note: Note) => {
+    setCurrentNote(note);
+    onNavigate("timeline-note-detail");
   };
 
   const pendingNote = notes.find((n) => n.id === pendingDeleteId);
@@ -74,7 +80,11 @@ export function TimelineView({ onNavigate }: ViewProps) {
 
         <VStack gap={2}>
           {notes.map((note) => (
-            <Card key={note.id} padding={4}>
+            <ClickableCard
+              key={note.id}
+              label={`${note.title} girdisini aç`}
+              onClick={() => openNote(note)}
+            >
               <HStack justify="between" align="center">
                 <VStack gap={1}>
                   <Heading level={4}>{note.title}</Heading>
@@ -86,7 +96,7 @@ export function TimelineView({ onNavigate }: ViewProps) {
                   clickAction={() => setPendingDeleteId(note.id)}
                 />
               </HStack>
-            </Card>
+            </ClickableCard>
           ))}
         </VStack>
       </VStack>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { VStack, HStack } from "@astryxdesign/core/Layout";
-import { Card } from "@astryxdesign/core/Card";
+import { ClickableCard } from "@astryxdesign/core/ClickableCard";
 import { Text, Heading } from "@astryxdesign/core/Text";
 import { Button } from "@astryxdesign/core/Button";
 import { Banner } from "@astryxdesign/core/Banner";
@@ -14,6 +14,7 @@ import type { ViewProps } from "../state/navigation";
 // books in the series, same reasoning as CharactersView.
 export function LocationsView({ onNavigate }: ViewProps) {
   const projectDir = useSeriesStore((state) => state.projectDir);
+  const setCurrentLocation = useSeriesStore((state) => state.setCurrentLocation);
   const [locations, setLocations] = useState<Location[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState("");
@@ -44,6 +45,11 @@ export function LocationsView({ onNavigate }: ViewProps) {
     }
   };
 
+  const openLocation = (location: Location) => {
+    setCurrentLocation(location);
+    onNavigate("location-detail");
+  };
+
   const pendingLocation = locations.find((l) => l.id === pendingDeleteId);
 
   return (
@@ -71,7 +77,11 @@ export function LocationsView({ onNavigate }: ViewProps) {
 
         <VStack gap={2}>
           {locations.map((location) => (
-            <Card key={location.id} padding={4}>
+            <ClickableCard
+              key={location.id}
+              label={`${location.name} lokasyonunu aç`}
+              onClick={() => openLocation(location)}
+            >
               <HStack justify="between" align="center">
                 <VStack gap={1}>
                   <Heading level={4}>{location.name}</Heading>
@@ -83,7 +93,7 @@ export function LocationsView({ onNavigate }: ViewProps) {
                   clickAction={() => setPendingDeleteId(location.id)}
                 />
               </HStack>
-            </Card>
+            </ClickableCard>
           ))}
         </VStack>
       </VStack>

@@ -3,8 +3,8 @@ use mythoside_core::manuscript::commands::{
     BookHandle, ChapterHandle, CreateBookInput, CreateChapterInput, CreateCharacterInput,
     CreateLocationInput, CreateNoteInput, CreateSeriesInput, CreateSeriesOutput, ListBooksOutput,
     ListChaptersOutput, ListCharactersOutput, ListLocationsOutput, ListNotesOutput,
-    ListSeriesOutput, MoveDirection, UpdateChapterContentInput, UpdateChapterInput,
-    UpdateSeriesInput,
+    ListSeriesOutput, MoveDirection, UpdateCharacterInput, UpdateChapterContentInput,
+    UpdateChapterInput, UpdateLocationInput, UpdateNoteInput, UpdateSeriesInput,
 };
 use mythoside_core::manuscript::models::{Chapter, Character, Location, Note, Series};
 use serde_json::json;
@@ -168,6 +168,17 @@ pub async fn delete_book(core: State<'_, CoreClient>, book_dir: String) -> Resul
 
 #[tauri::command]
 #[specta::specta]
+pub async fn update_character(
+    core: State<'_, CoreClient>,
+    input: UpdateCharacterInput,
+) -> Result<Character, String> {
+    let params = serde_json::to_value(input).map_err(|e| e.to_string())?;
+    let result = core.call("update_character", params).await?;
+    serde_json::from_value(result).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
 pub async fn delete_character(
     core: State<'_, CoreClient>,
     project_dir: String,
@@ -183,6 +194,17 @@ pub async fn delete_character(
 
 #[tauri::command]
 #[specta::specta]
+pub async fn update_location(
+    core: State<'_, CoreClient>,
+    input: UpdateLocationInput,
+) -> Result<Location, String> {
+    let params = serde_json::to_value(input).map_err(|e| e.to_string())?;
+    let result = core.call("update_location", params).await?;
+    serde_json::from_value(result).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+#[specta::specta]
 pub async fn delete_location(
     core: State<'_, CoreClient>,
     project_dir: String,
@@ -194,6 +216,17 @@ pub async fn delete_location(
     )
     .await?;
     Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn update_note(
+    core: State<'_, CoreClient>,
+    input: UpdateNoteInput,
+) -> Result<Note, String> {
+    let params = serde_json::to_value(input).map_err(|e| e.to_string())?;
+    let result = core.call("update_note", params).await?;
+    serde_json::from_value(result).map_err(|e| e.to_string())
 }
 
 #[tauri::command]

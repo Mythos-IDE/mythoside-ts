@@ -15,6 +15,9 @@ export type View =
   | "add-character"
   | "add-location"
   | "add-timeline-note"
+  | "character-detail"
+  | "location-detail"
+  | "timeline-note-detail"
   | "chapters"
   | "add-chapter"
   | "chapter-editor";

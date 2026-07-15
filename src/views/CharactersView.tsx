@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { VStack, HStack } from "@astryxdesign/core/Layout";
-import { Card } from "@astryxdesign/core/Card";
+import { ClickableCard } from "@astryxdesign/core/ClickableCard";
 import { Text, Heading } from "@astryxdesign/core/Text";
 import { Button } from "@astryxdesign/core/Button";
 import { Banner } from "@astryxdesign/core/Banner";
@@ -15,6 +15,7 @@ import type { ViewProps } from "../state/navigation";
 // a specific book's detail screen.
 export function CharactersView({ onNavigate }: ViewProps) {
   const projectDir = useSeriesStore((state) => state.projectDir);
+  const setCurrentCharacter = useSeriesStore((state) => state.setCurrentCharacter);
   const [characters, setCharacters] = useState<Character[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState("");
@@ -45,6 +46,11 @@ export function CharactersView({ onNavigate }: ViewProps) {
     }
   };
 
+  const openCharacter = (character: Character) => {
+    setCurrentCharacter(character);
+    onNavigate("character-detail");
+  };
+
   const pendingCharacter = characters.find((c) => c.id === pendingDeleteId);
 
   return (
@@ -72,7 +78,11 @@ export function CharactersView({ onNavigate }: ViewProps) {
 
         <VStack gap={2}>
           {characters.map((character) => (
-            <Card key={character.id} padding={4}>
+            <ClickableCard
+              key={character.id}
+              label={`${character.name} karakterini aç`}
+              onClick={() => openCharacter(character)}
+            >
               <HStack justify="between" align="center">
                 <VStack gap={1}>
                   <Heading level={4}>{character.name}</Heading>
@@ -84,7 +94,7 @@ export function CharactersView({ onNavigate }: ViewProps) {
                   clickAction={() => setPendingDeleteId(character.id)}
                 />
               </HStack>
-            </Card>
+            </ClickableCard>
           ))}
         </VStack>
       </VStack>

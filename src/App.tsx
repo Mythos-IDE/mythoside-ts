@@ -11,6 +11,9 @@ import { TimelineView } from "./views/TimelineView";
 import { AddCharacterView } from "./views/AddCharacterView";
 import { AddLocationView } from "./views/AddLocationView";
 import { AddTimelineNoteView } from "./views/AddTimelineNoteView";
+import { CharacterDetailView } from "./views/CharacterDetailView";
+import { LocationDetailView } from "./views/LocationDetailView";
+import { TimelineNoteDetailView } from "./views/TimelineNoteDetailView";
 import { ChaptersView } from "./views/ChaptersView";
 import { AddChapterView } from "./views/AddChapterView";
 import { ChapterEditorView } from "./views/ChapterEditorView";
@@ -46,6 +49,12 @@ function App() {
       return <AddLocationView onNavigate={setView} />;
     case "add-timeline-note":
       return <AddTimelineNoteView onNavigate={setView} />;
+    case "character-detail":
+      return <CharacterDetailView onNavigate={setView} />;
+    case "location-detail":
+      return <LocationDetailView onNavigate={setView} />;
+    case "timeline-note-detail":
+      return <TimelineNoteDetailView onNavigate={setView} />;
     case "chapters":
       return <ChaptersView onNavigate={setView} />;
     case "add-chapter":

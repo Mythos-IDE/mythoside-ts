@@ -19,6 +19,8 @@ export const commands = {
     typedError<Character, string>(__TAURI_INVOKE("create_character", { input })),
   listCharacters: (projectDir: string) =>
     typedError<ListCharactersOutput, string>(__TAURI_INVOKE("list_characters", { projectDir })),
+  updateCharacter: (input: UpdateCharacterInput) =>
+    typedError<Character, string>(__TAURI_INVOKE("update_character", { input })),
   createSeries: (input: CreateSeriesInput) =>
     typedError<CreateSeriesOutput, string>(__TAURI_INVOKE("create_series", { input })),
   getSeries: (projectDir: string) =>
@@ -34,10 +36,14 @@ export const commands = {
     typedError<Location, string>(__TAURI_INVOKE("create_location", { input })),
   listLocations: (projectDir: string) =>
     typedError<ListLocationsOutput, string>(__TAURI_INVOKE("list_locations", { projectDir })),
+  updateLocation: (input: UpdateLocationInput) =>
+    typedError<Location, string>(__TAURI_INVOKE("update_location", { input })),
   createNote: (input: CreateNoteInput) =>
     typedError<Note, string>(__TAURI_INVOKE("create_note", { input })),
   listNotes: (projectDir: string) =>
     typedError<ListNotesOutput, string>(__TAURI_INVOKE("list_notes", { projectDir })),
+  updateNote: (input: UpdateNoteInput) =>
+    typedError<Note, string>(__TAURI_INVOKE("update_note", { input })),
   deleteSeries: (projectDir: string) =>
     typedError<null, string>(__TAURI_INVOKE("delete_series", { projectDir })),
   deleteBook: (bookDir: string) =>
@@ -270,6 +276,30 @@ export type UpdateChapterContentInput = {
 export type UpdateChapterInput = {
   chapterPath: string;
   title: string;
+};
+
+export type UpdateCharacterInput = {
+  projectDir: string;
+  characterId: string;
+  name: string;
+  role: string;
+  bio?: string;
+  attributes?: { [key in string]: string };
+};
+
+export type UpdateLocationInput = {
+  projectDir: string;
+  locationId: string;
+  name: string;
+  description?: string;
+};
+
+export type UpdateNoteInput = {
+  projectDir: string;
+  noteId: string;
+  title: string;
+  type: NoteType;
+  content?: string;
 };
 
 export type UpdateSeriesInput = {
