@@ -18,7 +18,6 @@ export type View =
   | "chapters"
   | "add-chapter"
   | "scenes"
-  | "add-scene"
   | "scene-editor";
 
 export interface ViewProps {

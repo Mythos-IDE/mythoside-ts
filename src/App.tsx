@@ -14,7 +14,6 @@ import { AddTimelineNoteView } from "./views/AddTimelineNoteView";
 import { ChaptersView } from "./views/ChaptersView";
 import { AddChapterView } from "./views/AddChapterView";
 import { ScenesView } from "./views/ScenesView";
-import { AddSceneView } from "./views/AddSceneView";
 import { SceneEditorView } from "./views/SceneEditorView";
 
 // No router library: a single-window desktop app with a handful of screens
@@ -54,8 +53,6 @@ function App() {
       return <AddChapterView onNavigate={setView} />;
     case "scenes":
       return <ScenesView onNavigate={setView} />;
-    case "add-scene":
-      return <AddSceneView onNavigate={setView} />;
     case "scene-editor":
       return <SceneEditorView onNavigate={setView} />;
   }

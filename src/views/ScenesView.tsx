@@ -21,6 +21,7 @@ export function ScenesView({ onNavigate }: ViewProps) {
   const [error, setError] = useState("");
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
 
   const chapterDir = currentChapter?.chapterDir ?? null;
 
@@ -77,16 +78,30 @@ export function ScenesView({ onNavigate }: ViewProps) {
     }
   };
 
+  const handleCreate = async (title: string) => {
+    if (!chapterDir || !currentChapter) return;
+    const result = await commands.createScene({
+      chapterDir,
+      chapterId: currentChapter.chapter.id,
+      title,
+      tags: [],
+      characters: [],
+      content: "",
+    });
+    if (result.status === "ok") {
+      setCurrentScene(result.data);
+      onNavigate("scene-editor");
+    } else {
+      setError(result.error);
+    }
+  };
+
   return (
     <SeriesAppShell activeView="scenes" onNavigate={onNavigate}>
       <VStack gap={6} maxWidth={720}>
         <HStack justify="between" align="center">
           <Heading level={2}>Sahneler</Heading>
-          <Button
-            label="Yeni Sahne"
-            variant="primary"
-            clickAction={() => onNavigate("add-scene")}
-          />
+          <Button label="Yeni Sahne" variant="primary" clickAction={() => setIsCreating(true)} />
         </HStack>
 
         {error && <Banner status="error" title="Hata" description={error} />}
@@ -162,6 +177,14 @@ export function ScenesView({ onNavigate }: ViewProps) {
         dialogTitle="Sahneyi yeniden adlandır"
         initialValue={renamingScene?.scene.title ?? ""}
         onSave={handleRename}
+      />
+
+      <RenameDialog
+        isOpen={isCreating}
+        onOpenChange={setIsCreating}
+        dialogTitle="Yeni Sahne"
+        initialValue=""
+        onSave={handleCreate}
       />
     </SeriesAppShell>
   );

@@ -9,6 +9,7 @@ import { Banner } from "@astryxdesign/core/Banner";
 import { AlertDialog } from "@astryxdesign/core/AlertDialog";
 import { commands, type ChapterHandle } from "../bindings";
 import { useSeriesStore } from "../state/seriesStore";
+import { openChapterInEditor } from "../lib/openChapter";
 import { SeriesAppShell } from "./SeriesAppShell";
 import { RenameDialog } from "./RenameDialog";
 import type { ViewProps } from "../state/navigation";
@@ -18,7 +19,6 @@ import type { ViewProps } from "../state/navigation";
 // level side nav.
 export function ChaptersView({ onNavigate }: ViewProps) {
   const currentBook = useSeriesStore((state) => state.currentBook);
-  const setCurrentChapter = useSeriesStore((state) => state.setCurrentChapter);
   const [chapters, setChapters] = useState<ChapterHandle[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState("");
@@ -41,9 +41,15 @@ export function ChaptersView({ onNavigate }: ViewProps) {
 
   useEffect(reload, [bookDir]);
 
-  const openChapter = (handle: ChapterHandle) => {
-    setCurrentChapter(handle);
-    onNavigate("scenes");
+  // Goes straight to the writing surface — the point of opening a chapter is
+  // to write, not to browse a scene list first.
+  const openChapter = async (handle: ChapterHandle) => {
+    const result = await openChapterInEditor(handle);
+    if (result.status === "ok") {
+      onNavigate("scene-editor");
+    } else {
+      setError(result.error);
+    }
   };
 
   const pendingChapter = chapters.find((c) => c.chapter.id === pendingDeleteId);
