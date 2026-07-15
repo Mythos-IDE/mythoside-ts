@@ -11,6 +11,11 @@ import { TimelineView } from "./views/TimelineView";
 import { AddCharacterView } from "./views/AddCharacterView";
 import { AddLocationView } from "./views/AddLocationView";
 import { AddTimelineNoteView } from "./views/AddTimelineNoteView";
+import { ChaptersView } from "./views/ChaptersView";
+import { AddChapterView } from "./views/AddChapterView";
+import { ScenesView } from "./views/ScenesView";
+import { AddSceneView } from "./views/AddSceneView";
+import { SceneEditorView } from "./views/SceneEditorView";
 
 // No router library: a single-window desktop app with a handful of screens
 // has no URL-addressable content to justify one (see state/navigation.ts).
@@ -43,6 +48,16 @@ function App() {
       return <AddLocationView onNavigate={setView} />;
     case "add-timeline-note":
       return <AddTimelineNoteView onNavigate={setView} />;
+    case "chapters":
+      return <ChaptersView onNavigate={setView} />;
+    case "add-chapter":
+      return <AddChapterView onNavigate={setView} />;
+    case "scenes":
+      return <ScenesView onNavigate={setView} />;
+    case "add-scene":
+      return <AddSceneView onNavigate={setView} />;
+    case "scene-editor":
+      return <SceneEditorView onNavigate={setView} />;
   }
 }
 

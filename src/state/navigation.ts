@@ -14,7 +14,12 @@ export type View =
   | "timeline"
   | "add-character"
   | "add-location"
-  | "add-timeline-note";
+  | "add-timeline-note"
+  | "chapters"
+  | "add-chapter"
+  | "scenes"
+  | "add-scene"
+  | "scene-editor";
 
 export interface ViewProps {
   onNavigate: (view: View) => void;

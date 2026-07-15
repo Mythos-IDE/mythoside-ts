@@ -11,8 +11,9 @@ import { SeriesAppShell } from "./SeriesAppShell";
 import type { ViewProps } from "../state/navigation";
 
 // Characters/Locations/Timeline live at the series level now (see
-// CharactersView etc.) — this screen is just the book's own metadata plus
-// the one thing that really is book-scoped: deleting it.
+// CharactersView etc.) — this screen is the book's own metadata, the entry
+// point into its Chapters (genuinely book-scoped, unlike those three), and
+// deleting it.
 export function BookDetailView({ onNavigate }: ViewProps) {
   const currentBook = useSeriesStore((state) => state.currentBook);
   const setCurrentBook = useSeriesStore((state) => state.setCurrentBook);
@@ -45,7 +46,12 @@ export function BookDetailView({ onNavigate }: ViewProps) {
           <VStack gap={4}>
             <Heading level={2}>{currentBook.book.title}</Heading>
             <Text color="secondary">{currentBook.book.synopsis || "Özet yok."}</Text>
-            <HStack>
+            <HStack gap={2}>
+              <Button
+                label="Bölümler"
+                variant="primary"
+                clickAction={() => onNavigate("chapters")}
+              />
               <Button
                 label="Kitabı Sil"
                 variant="destructive"

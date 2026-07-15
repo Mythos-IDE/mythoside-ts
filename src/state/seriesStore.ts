@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { BookHandle, Series } from "../bindings";
+import type { BookHandle, ChapterHandle, SceneHandle, Series } from "../bindings";
 
 // Cache of what bindings.ts commands have returned so far — not navigation
 // state (that stays local useState in App.tsx, see its comment) and not a
@@ -8,8 +8,12 @@ interface SeriesStore {
   projectDir: string | null;
   series: Series | null;
   currentBook: BookHandle | null;
+  currentChapter: ChapterHandle | null;
+  currentScene: SceneHandle | null;
   setSeries: (series: Series, projectDir: string) => void;
   setCurrentBook: (book: BookHandle | null) => void;
+  setCurrentChapter: (chapter: ChapterHandle | null) => void;
+  setCurrentScene: (scene: SceneHandle | null) => void;
   reset: () => void;
 }
 
@@ -17,7 +21,18 @@ export const useSeriesStore = create<SeriesStore>((set) => ({
   projectDir: null,
   series: null,
   currentBook: null,
+  currentChapter: null,
+  currentScene: null,
   setSeries: (series, projectDir) => set({ series, projectDir }),
   setCurrentBook: (book) => set({ currentBook: book }),
-  reset: () => set({ projectDir: null, series: null, currentBook: null }),
+  setCurrentChapter: (chapter) => set({ currentChapter: chapter }),
+  setCurrentScene: (scene) => set({ currentScene: scene }),
+  reset: () =>
+    set({
+      projectDir: null,
+      series: null,
+      currentBook: null,
+      currentChapter: null,
+      currentScene: null,
+    }),
 }));

@@ -12,10 +12,19 @@ interface SeriesAppShellProps extends ViewProps {
   children: ReactNode;
 }
 
-// Only book-detail itself shows a book breadcrumb now — add-character/
-// add-location/add-timeline-note are series-scoped forms (a character can
-// recur across multiple books), not entered "from inside" a specific book.
-const BOOK_SCOPED_VIEWS: View[] = ["book-detail"];
+// Book-detail and everything under Chapters/Scenes shows a book breadcrumb
+// — add-character/add-location/add-timeline-note are series-scoped forms (a
+// character can recur across multiple books), not entered "from inside" a
+// specific book, so they're deliberately excluded.
+const BOOK_SCOPED_VIEWS: View[] = [
+  "book-detail",
+  "chapters",
+  "add-chapter",
+  "scenes",
+  "add-scene",
+  "scene-editor",
+];
+const CHAPTER_SCOPED_VIEWS: View[] = ["scenes", "add-scene", "scene-editor"];
 
 // Persistent chrome for every screen once a series is loaded — "Seri
 // Bilgileri" lives here (not as a dashboard-only tile) so it stays reachable
@@ -25,8 +34,10 @@ const BOOK_SCOPED_VIEWS: View[] = ["book-detail"];
 export function SeriesAppShell({ activeView, onNavigate, children }: SeriesAppShellProps) {
   const series = useSeriesStore((state) => state.series);
   const currentBook = useSeriesStore((state) => state.currentBook);
+  const currentChapter = useSeriesStore((state) => state.currentChapter);
   const reset = useSeriesStore((state) => state.reset);
   const showBookCrumb = BOOK_SCOPED_VIEWS.includes(activeView) && currentBook;
+  const showChapterCrumb = CHAPTER_SCOPED_VIEWS.includes(activeView) && currentChapter;
 
   const goHome = () => {
     reset();
@@ -48,7 +59,22 @@ export function SeriesAppShell({ activeView, onNavigate, children }: SeriesAppSh
               >
                 {series?.title ?? "Seri"}
               </BreadcrumbItem>
-              {showBookCrumb && <BreadcrumbItem isCurrent>{currentBook.book.title}</BreadcrumbItem>}
+              {showBookCrumb && (
+                <BreadcrumbItem
+                  onClick={() => onNavigate("book-detail")}
+                  isCurrent={activeView === "book-detail"}
+                >
+                  {currentBook.book.title}
+                </BreadcrumbItem>
+              )}
+              {showChapterCrumb && (
+                <BreadcrumbItem
+                  onClick={() => onNavigate("scenes")}
+                  isCurrent={activeView === "scenes"}
+                >
+                  {currentChapter.chapter.title}
+                </BreadcrumbItem>
+              )}
             </Breadcrumbs>
           }
         />

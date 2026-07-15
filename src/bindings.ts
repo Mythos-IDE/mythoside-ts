@@ -48,6 +48,20 @@ export const commands = {
     typedError<null, string>(__TAURI_INVOKE("delete_location", { projectDir, locationId })),
   deleteNote: (projectDir: string, noteId: string) =>
     typedError<null, string>(__TAURI_INVOKE("delete_note", { projectDir, noteId })),
+  createChapter: (input: CreateChapterInput) =>
+    typedError<ChapterHandle, string>(__TAURI_INVOKE("create_chapter", { input })),
+  listChapters: (bookDir: string) =>
+    typedError<ListChaptersOutput, string>(__TAURI_INVOKE("list_chapters", { bookDir })),
+  deleteChapter: (chapterDir: string) =>
+    typedError<null, string>(__TAURI_INVOKE("delete_chapter", { chapterDir })),
+  createScene: (input: CreateSceneInput) =>
+    typedError<SceneHandle, string>(__TAURI_INVOKE("create_scene", { input })),
+  listScenes: (chapterDir: string) =>
+    typedError<ListScenesOutput, string>(__TAURI_INVOKE("list_scenes", { chapterDir })),
+  updateScene: (input: UpdateSceneInput) =>
+    typedError<Scene, string>(__TAURI_INVOKE("update_scene", { input })),
+  deleteScene: (scenePath: string) =>
+    typedError<null, string>(__TAURI_INVOKE("delete_scene", { scenePath })),
 };
 
 /* Types */
@@ -72,6 +86,19 @@ export type BookHandle = {
   bookDir: string;
 };
 
+export type Chapter = {
+  id: string;
+  bookId: string;
+  title: string;
+  order: number;
+  createdAt: string;
+};
+
+export type ChapterHandle = {
+  chapter: Chapter;
+  chapterDir: string;
+};
+
 export type Character = {
   id: string;
   /**
@@ -92,6 +119,12 @@ export type CreateBookInput = {
   seriesId: string;
   title: string;
   synopsis?: string;
+};
+
+export type CreateChapterInput = {
+  bookDir: string;
+  bookId: string;
+  title: string;
 };
 
 export type CreateCharacterInput = {
@@ -123,6 +156,15 @@ export type CreateNoteInput = {
   content?: string;
 };
 
+export type CreateSceneInput = {
+  chapterDir: string;
+  chapterId: string;
+  title: string;
+  tags?: string[];
+  characters?: string[];
+  content?: string;
+};
+
 export type CreateSeriesInput = {
   title: string;
   description?: string;
@@ -149,6 +191,11 @@ export type ListBooksOutput = {
   warnings: string[];
 };
 
+export type ListChaptersOutput = {
+  chapters: ChapterHandle[];
+  warnings: string[];
+};
+
 export type ListCharactersOutput = {
   characters: Character[];
   warnings: string[];
@@ -161,6 +208,11 @@ export type ListLocationsOutput = {
 
 export type ListNotesOutput = {
   notes: Note[];
+  warnings: string[];
+};
+
+export type ListScenesOutput = {
+  scenes: SceneHandle[];
   warnings: string[];
 };
 
@@ -198,6 +250,22 @@ export type Note = {
 
 export type NoteType = "lore" | "timeline";
 
+export type Scene = {
+  id: string;
+  chapterId: string;
+  title: string;
+  order: number;
+  tags: string[];
+  characters: string[];
+  createdAt: string;
+  content: string;
+};
+
+export type SceneHandle = {
+  scene: Scene;
+  scenePath: string;
+};
+
 export type Series = {
   id: string;
   title: string;
@@ -216,6 +284,11 @@ export type Series = {
   characterIds?: string[];
   locationIds?: string[];
   noteIds?: string[];
+};
+
+export type UpdateSceneInput = {
+  scenePath: string;
+  content: string;
 };
 
 export type UpdateSeriesInput = {
