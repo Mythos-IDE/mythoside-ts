@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
+import { ChevronUp, ChevronDown, Pencil } from "lucide-react";
 import { VStack, HStack } from "@astryxdesign/core/Layout";
 import { ClickableCard } from "@astryxdesign/core/ClickableCard";
 import { Text, Heading } from "@astryxdesign/core/Text";
 import { Button } from "@astryxdesign/core/Button";
+import { IconButton } from "@astryxdesign/core/IconButton";
 import { Banner } from "@astryxdesign/core/Banner";
 import { AlertDialog } from "@astryxdesign/core/AlertDialog";
 import { commands, type ChapterHandle } from "../bindings";
 import { useSeriesStore } from "../state/seriesStore";
 import { SeriesAppShell } from "./SeriesAppShell";
+import { RenameDialog } from "./RenameDialog";
 import type { ViewProps } from "../state/navigation";
 
 // Book-scoped, unlike Character/Location/Note — a chapter belongs to
@@ -20,6 +23,7 @@ export function ChaptersView({ onNavigate }: ViewProps) {
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
 
   const bookDir = currentBook?.bookDir ?? null;
 
@@ -43,11 +47,35 @@ export function ChaptersView({ onNavigate }: ViewProps) {
   };
 
   const pendingChapter = chapters.find((c) => c.chapter.id === pendingDeleteId);
+  const renamingChapter = chapters.find((c) => c.chapter.id === renamingId);
 
   const handleDelete = async () => {
     if (!pendingChapter) return;
     const result = await commands.deleteChapter(pendingChapter.chapterDir);
     setPendingDeleteId(null);
+    if (result.status === "ok") {
+      reload();
+    } else {
+      setError(result.error);
+    }
+  };
+
+  const handleRename = async (title: string) => {
+    if (!renamingChapter) return;
+    const result = await commands.updateChapter({
+      chapterDir: renamingChapter.chapterDir,
+      title,
+    });
+    if (result.status === "ok") {
+      reload();
+    } else {
+      setError(result.error);
+    }
+  };
+
+  const handleMove = async (chapterId: string, direction: "up" | "down") => {
+    if (!bookDir) return;
+    const result = await commands.moveChapter(bookDir, chapterId, direction);
     if (result.status === "ok") {
       reload();
     } else {
@@ -79,7 +107,7 @@ export function ChaptersView({ onNavigate }: ViewProps) {
         {chapters.length === 0 && <Text color="secondary">Henüz bölüm eklenmedi.</Text>}
 
         <VStack gap={3}>
-          {chapters.map((handle) => (
+          {chapters.map((handle, index) => (
             <ClickableCard
               key={handle.chapter.id}
               label={`${handle.chapter.title} bölümünü aç`}
@@ -89,11 +117,36 @@ export function ChaptersView({ onNavigate }: ViewProps) {
                 <Heading level={4}>
                   {handle.chapter.order}. {handle.chapter.title}
                 </Heading>
-                <Button
-                  label="Sil"
-                  variant="destructive"
-                  clickAction={() => setPendingDeleteId(handle.chapter.id)}
-                />
+                <HStack gap={1}>
+                  <IconButton
+                    label="Yukarı taşı"
+                    tooltip="Yukarı taşı"
+                    icon={<ChevronUp size={16} />}
+                    variant="ghost"
+                    isDisabled={index === 0}
+                    onClick={() => handleMove(handle.chapter.id, "up")}
+                  />
+                  <IconButton
+                    label="Aşağı taşı"
+                    tooltip="Aşağı taşı"
+                    icon={<ChevronDown size={16} />}
+                    variant="ghost"
+                    isDisabled={index === chapters.length - 1}
+                    onClick={() => handleMove(handle.chapter.id, "down")}
+                  />
+                  <IconButton
+                    label="Yeniden adlandır"
+                    tooltip="Yeniden adlandır"
+                    icon={<Pencil size={16} />}
+                    variant="ghost"
+                    onClick={() => setRenamingId(handle.chapter.id)}
+                  />
+                  <Button
+                    label="Sil"
+                    variant="destructive"
+                    clickAction={() => setPendingDeleteId(handle.chapter.id)}
+                  />
+                </HStack>
               </HStack>
             </ClickableCard>
           ))}
@@ -107,6 +160,14 @@ export function ChaptersView({ onNavigate }: ViewProps) {
         description={`"${pendingChapter?.chapter.title ?? ""}" bölümünü ve içindeki tüm sahneleri silmek istediğinizden emin misiniz? Bu işlem çöp kutusuna taşınarak geri alınabilir.`}
         actionLabel="Sil"
         onAction={handleDelete}
+      />
+
+      <RenameDialog
+        isOpen={renamingId !== null}
+        onOpenChange={(isOpen) => !isOpen && setRenamingId(null)}
+        dialogTitle="Bölümü yeniden adlandır"
+        initialValue={renamingChapter?.chapter.title ?? ""}
+        onSave={handleRename}
       />
     </SeriesAppShell>
   );

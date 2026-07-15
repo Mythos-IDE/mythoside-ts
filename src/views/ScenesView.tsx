@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
+import { ChevronUp, ChevronDown, Pencil } from "lucide-react";
 import { VStack, HStack } from "@astryxdesign/core/Layout";
 import { ClickableCard } from "@astryxdesign/core/ClickableCard";
 import { Text, Heading } from "@astryxdesign/core/Text";
 import { Button } from "@astryxdesign/core/Button";
+import { IconButton } from "@astryxdesign/core/IconButton";
 import { Banner } from "@astryxdesign/core/Banner";
 import { AlertDialog } from "@astryxdesign/core/AlertDialog";
 import { commands, type SceneHandle } from "../bindings";
 import { useSeriesStore } from "../state/seriesStore";
 import { SeriesAppShell } from "./SeriesAppShell";
+import { RenameDialog } from "./RenameDialog";
 import type { ViewProps } from "../state/navigation";
 
 export function ScenesView({ onNavigate }: ViewProps) {
@@ -17,6 +20,7 @@ export function ScenesView({ onNavigate }: ViewProps) {
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
 
   const chapterDir = currentChapter?.chapterDir ?? null;
 
@@ -40,11 +44,32 @@ export function ScenesView({ onNavigate }: ViewProps) {
   };
 
   const pendingScene = scenes.find((s) => s.scene.id === pendingDeleteId);
+  const renamingScene = scenes.find((s) => s.scene.id === renamingId);
 
   const handleDelete = async () => {
     if (!pendingScene) return;
     const result = await commands.deleteScene(pendingScene.scenePath);
     setPendingDeleteId(null);
+    if (result.status === "ok") {
+      reload();
+    } else {
+      setError(result.error);
+    }
+  };
+
+  const handleRename = async (title: string) => {
+    if (!renamingScene) return;
+    const result = await commands.renameScene({ scenePath: renamingScene.scenePath, title });
+    if (result.status === "ok") {
+      reload();
+    } else {
+      setError(result.error);
+    }
+  };
+
+  const handleMove = async (sceneId: string, direction: "up" | "down") => {
+    if (!chapterDir) return;
+    const result = await commands.moveScene(chapterDir, sceneId, direction);
     if (result.status === "ok") {
       reload();
     } else {
@@ -76,7 +101,7 @@ export function ScenesView({ onNavigate }: ViewProps) {
         {scenes.length === 0 && <Text color="secondary">Henüz sahne eklenmedi.</Text>}
 
         <VStack gap={3}>
-          {scenes.map((handle) => (
+          {scenes.map((handle, index) => (
             <ClickableCard
               key={handle.scene.id}
               label={`${handle.scene.title} sahnesini aç`}
@@ -86,11 +111,36 @@ export function ScenesView({ onNavigate }: ViewProps) {
                 <Heading level={4}>
                   {handle.scene.order}. {handle.scene.title}
                 </Heading>
-                <Button
-                  label="Sil"
-                  variant="destructive"
-                  clickAction={() => setPendingDeleteId(handle.scene.id)}
-                />
+                <HStack gap={1}>
+                  <IconButton
+                    label="Yukarı taşı"
+                    tooltip="Yukarı taşı"
+                    icon={<ChevronUp size={16} />}
+                    variant="ghost"
+                    isDisabled={index === 0}
+                    onClick={() => handleMove(handle.scene.id, "up")}
+                  />
+                  <IconButton
+                    label="Aşağı taşı"
+                    tooltip="Aşağı taşı"
+                    icon={<ChevronDown size={16} />}
+                    variant="ghost"
+                    isDisabled={index === scenes.length - 1}
+                    onClick={() => handleMove(handle.scene.id, "down")}
+                  />
+                  <IconButton
+                    label="Yeniden adlandır"
+                    tooltip="Yeniden adlandır"
+                    icon={<Pencil size={16} />}
+                    variant="ghost"
+                    onClick={() => setRenamingId(handle.scene.id)}
+                  />
+                  <Button
+                    label="Sil"
+                    variant="destructive"
+                    clickAction={() => setPendingDeleteId(handle.scene.id)}
+                  />
+                </HStack>
               </HStack>
             </ClickableCard>
           ))}
@@ -104,6 +154,14 @@ export function ScenesView({ onNavigate }: ViewProps) {
         description={`"${pendingScene?.scene.title ?? ""}" sahnesini silmek istediğinizden emin misiniz? Bu işlem çöp kutusuna taşınarak geri alınabilir.`}
         actionLabel="Sil"
         onAction={handleDelete}
+      />
+
+      <RenameDialog
+        isOpen={renamingId !== null}
+        onOpenChange={(isOpen) => !isOpen && setRenamingId(null)}
+        dialogTitle="Sahneyi yeniden adlandır"
+        initialValue={renamingScene?.scene.title ?? ""}
+        onSave={handleRename}
       />
     </SeriesAppShell>
   );

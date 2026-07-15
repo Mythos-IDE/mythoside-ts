@@ -33,6 +33,10 @@ fn specta_builder() -> Builder<tauri::Wry> {
         commands::list_scenes,
         commands::update_scene,
         commands::delete_scene,
+        commands::update_chapter,
+        commands::rename_scene,
+        commands::move_chapter,
+        commands::move_scene,
     ])
 }
 

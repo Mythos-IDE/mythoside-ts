@@ -62,6 +62,14 @@ export const commands = {
     typedError<Scene, string>(__TAURI_INVOKE("update_scene", { input })),
   deleteScene: (scenePath: string) =>
     typedError<null, string>(__TAURI_INVOKE("delete_scene", { scenePath })),
+  updateChapter: (input: UpdateChapterInput) =>
+    typedError<Chapter, string>(__TAURI_INVOKE("update_chapter", { input })),
+  renameScene: (input: RenameSceneInput) =>
+    typedError<Scene, string>(__TAURI_INVOKE("rename_scene", { input })),
+  moveChapter: (bookDir: string, chapterId: string, direction: MoveDirection) =>
+    typedError<null, string>(__TAURI_INVOKE("move_chapter", { bookDir, chapterId, direction })),
+  moveScene: (chapterDir: string, sceneId: string, direction: MoveDirection) =>
+    typedError<null, string>(__TAURI_INVOKE("move_scene", { chapterDir, sceneId, direction })),
 };
 
 /* Types */
@@ -238,6 +246,8 @@ export type Location = {
   description: string;
 };
 
+export type MoveDirection = "up" | "down";
+
 export type Note = {
   id: string;
   /**  Series-level for the same reason as `Character::series_id`. */
@@ -249,6 +259,11 @@ export type Note = {
 };
 
 export type NoteType = "lore" | "timeline";
+
+export type RenameSceneInput = {
+  scenePath: string;
+  title: string;
+};
 
 export type Scene = {
   id: string;
@@ -284,6 +299,11 @@ export type Series = {
   characterIds?: string[];
   locationIds?: string[];
   noteIds?: string[];
+};
+
+export type UpdateChapterInput = {
+  chapterDir: string;
+  title: string;
 };
 
 export type UpdateSceneInput = {
