@@ -1,8 +1,8 @@
 <div align="center">
-  <img src="assets/readme/hero.svg" alt="MythosIDE Desktop — the Tauri + React client where novelists write" width="100%" />
+  <img src="assets/readme/hero.svg" alt="Mythos Desktop — the Tauri + React client where novelists write" width="100%" />
 </div>
 
-# MythosIDE Desktop (`mythoside-ts`)
+# Mythos Desktop (`mythoside-ts`)
 
 [![License: FSL-1.1-ALv2](https://img.shields.io/badge/license-FSL--1.1--ALv2-C9A24B)](./LICENSE.md)
 
@@ -16,7 +16,7 @@
   <a href="https://github.com/Mythos-IDE/mythoside-website">Website</a>
 </p>
 
-The desktop client for **MythosIDE** — the calm, editor-like surface where novelists actually write. It's a Tauri + React + TypeScript app that hosts the [`mythoside-core`](https://github.com/Mythos-IDE/mythoside-core) Rust engine as a managed **sidecar** and proxies to it, so all the heavy lifting (parsing, file watching, relationships) stays in the engine and this repo stays focused on the interface.
+The desktop client for **Mythos** — the calm, editor-like surface where novelists actually write. It's a Tauri + React + TypeScript app that hosts the [`mythoside-core`](https://github.com/Mythos-IDE/mythoside-core) Rust engine as a managed **sidecar** and proxies to it, so all the heavy lifting (parsing, file watching, relationships) stays in the engine and this repo stays focused on the interface.
 
 > **Status:** early development. The UI is being rebuilt; expect rough edges.
 

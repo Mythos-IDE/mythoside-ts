@@ -1,8 +1,8 @@
 <div align="center">
-  <img src="assets/readme/hero.svg" alt="MythosIDE Desktop — romancıların yazdığı Tauri + React istemcisi" width="100%" />
+  <img src="assets/readme/hero.svg" alt="Mythos Desktop — romancıların yazdığı Tauri + React istemcisi" width="100%" />
 </div>
 
-# MythosIDE Desktop (`mythoside-ts`)
+# Mythos Desktop (`mythoside-ts`)
 
 [![License: FSL-1.1-ALv2](https://img.shields.io/badge/license-FSL--1.1--ALv2-C9A24B)](./LICENSE.md)
 
@@ -16,7 +16,7 @@
   <a href="https://github.com/Mythos-IDE/mythoside-website">Web sitesi</a>
 </p>
 
-**MythosIDE**'nin masaüstü istemcisi — romancıların fiilen yazdığı, editör benzeri sakin yüzey. [`mythoside-core`](https://github.com/Mythos-IDE/mythoside-core) Rust motorunu yönetilen bir **sidecar** olarak barındıran ve ona proxy yapan bir Tauri + React + TypeScript uygulamasıdır; böylece ağır iş (ayrıştırma, dosya izleme, ilişkiler) motorda kalır ve bu repo arayüze odaklı kalır.
+**Mythos**'nin masaüstü istemcisi — romancıların fiilen yazdığı, editör benzeri sakin yüzey. [`mythoside-core`](https://github.com/Mythos-IDE/mythoside-core) Rust motorunu yönetilen bir **sidecar** olarak barındıran ve ona proxy yapan bir Tauri + React + TypeScript uygulamasıdır; böylece ağır iş (ayrıştırma, dosya izleme, ilişkiler) motorda kalır ve bu repo arayüze odaklı kalır.
 
 > **Durum:** erken geliştirme aşaması. Arayüz yeniden inşa ediliyor; eksikler olabilir.
 
