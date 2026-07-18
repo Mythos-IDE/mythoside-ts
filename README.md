@@ -6,6 +6,8 @@
 
 [![License: FSL-1.1-ALv2](https://img.shields.io/badge/license-FSL--1.1--ALv2-C9A24B)](./LICENSE.md)
 
+<p align="center">English · <a href="./README.TR.md">Türkçe</a></p>
+
 <p align="center">
   <a href="https://github.com/Mythos-IDE">Ecosystem</a>
   &nbsp;·&nbsp;
